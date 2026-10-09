@@ -6,3 +6,5 @@ docs
 .env*
 tailscale
 .playwright-mcp
+data
+**/*.test.ts

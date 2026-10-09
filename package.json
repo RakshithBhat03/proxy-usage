@@ -3,11 +3,15 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
   "scripts": {
-    "dev": "vite",
+    "dev": "node --watch-path=server --watch-path=shared --disable-warning=ExperimentalWarning server/index.ts --dev",
     "build": "tsc -b && vite build",
-    "preview": "vite preview",
-    "typecheck": "tsc -b --noEmit"
+    "start": "node --env-file-if-exists=.env --disable-warning=ExperimentalWarning server/index.ts",
+    "typecheck": "tsc -b --noEmit",
+    "test": "node --test --disable-warning=ExperimentalWarning 'server/**/*.test.ts' 'shared/**/*.test.ts'"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.104.1",

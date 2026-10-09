@@ -9,3 +9,10 @@ tailscale/state
 
 # Internal build notes and research (local paths, captured API responses)
 docs/
+
+# Local SQLite data (usage history)
+data/
+*.sqlite*
+
+# Local one-off tools (not part of the app)
+local/
