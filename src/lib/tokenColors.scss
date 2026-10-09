@@ -1,0 +1,22 @@
+// Token category colors, shared by the Usage charts and the Request Monitor detail sheet.
+// Input is a cool family (cache read -> cache write -> fresh input), output is the one warm accent.
+// Hues stay clear of emerald (healthy traffic), terracotta (failure) and saturated amber (warning).
+// Each theme picks its own steps: the dominant cache-read mass is the recessive one (pale on paper,
+// deep on dark) so the thin cache-write / fresh / output segments above it carry the attention.
+// Validated with the dataviz palette checks (OKLCH band, chroma floor, CVD + normal-vision
+// separation for all pairs) against each theme's panel surface.
+
+// Wool Paper (default light) and White share one set: both are light surfaces.
+:root {
+  --viz-token-cache-read: #75aee9; // powder blue
+  --viz-token-cache-write: #0082a1; // deep lagoon
+  --viz-token-fresh: #584594; // indigo violet
+  --viz-token-output: #a97e33; // caramel sand
+}
+
+[data-theme='dark'] {
+  --viz-token-cache-read: #2d6398; // steel blue
+  --viz-token-cache-write: #2fa4b4; // lagoon
+  --viz-token-fresh: #8b73cb; // lavender
+  --viz-token-output: #b18842; // brass sand
+}
