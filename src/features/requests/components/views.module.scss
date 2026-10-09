@@ -1,0 +1,296 @@
+@use '../../../styles/mixins' as *;
+
+.view {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 4px 16px 18px;
+}
+
+.note {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 22px;
+
+  @include mobile {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.blockTitle {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.bars {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.barRow {
+  display: grid;
+  grid-template-columns: 120px minmax(40px, 1fr) 52px 40px;
+  align-items: center;
+  gap: 10px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+
+.barLabel {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.barTrack {
+  height: 8px;
+  border-radius: $radius-full;
+  background: color-mix(in srgb, var(--text-primary) 6%, transparent);
+  overflow: hidden;
+}
+
+.barFill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--viz-failure);
+  transform-origin: left;
+  animation: grow-x 0.5s var(--ease-out-strong) backwards;
+  transition: width 0.36s var(--ease-out-strong);
+}
+
+.barAmber {
+  background: var(--amber-color);
+}
+
+.barNeutral {
+  background: color-mix(in srgb, var(--text-primary) 35%, transparent);
+}
+
+.barValue {
+  text-align: right;
+  font-family: $font-mono;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+.barShare {
+  text-align: right;
+  font-family: $font-mono;
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+.codes {
+  display: flex;
+  flex-direction: column;
+}
+
+.codeRow {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) 60px;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 55%, transparent);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.codeKind {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+
+.table {
+  td {
+    padding: 8px 12px;
+  }
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.meterCell {
+  display: inline-grid;
+  grid-template-columns: 90px 52px;
+  align-items: center;
+  gap: 10px;
+}
+
+.meterValue,
+.meterValueWide {
+  font-family: $font-mono;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  text-align: right;
+}
+
+.meterValueWide {
+  min-width: 78px;
+}
+
+.dimText {
+  color: var(--text-quaternary);
+}
+
+.failText {
+  color: var(--viz-failure) !important;
+}
+
+.modelCell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.modelName {
+  color: var(--text-primary);
+  font-weight: 550;
+}
+
+.strip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 14px;
+}
+
+.stripCell {
+  width: 5px;
+  height: 14px;
+  border-radius: 2px;
+  background: var(--viz-success);
+  opacity: 0.8;
+}
+
+.stripFail {
+  background: var(--viz-failure);
+  opacity: 1;
+}
+
+.calm {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 140px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.calmDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--viz-success);
+}
+
+.failList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.failItem {
+  display: grid;
+  grid-template-columns: 64px 46px minmax(110px, 180px) minmax(120px, 210px) minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 55%, transparent);
+  background: none;
+  font: inherit;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  text-align: left;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color var(--dur-hover) var(--ease-out-strong);
+
+  &:hover {
+    background: color-mix(in srgb, var(--bg-tertiary) 45%, transparent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: -2px;
+  }
+
+  @include mobile {
+    grid-template-columns: 58px 46px minmax(0, 1fr);
+
+    .failCred,
+    .failSummary {
+      grid-column: 1 / -1;
+    }
+  }
+}
+
+.failTime {
+  font-family: $font-mono;
+  font-size: 12px;
+  color: var(--text-primary);
+}
+
+.failModel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-primary);
+}
+
+.failCred {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.failSummary {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: $font-mono;
+  font-size: 11.5px;
+  color: var(--text-tertiary);
+}
+
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .barFill {
+    animation: none;
+    transition: none;
+  }
+}

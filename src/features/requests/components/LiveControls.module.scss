@@ -1,0 +1,135 @@
+.group {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--border-color);
+  border-radius: $radius-full;
+  background: var(--bg-tertiary);
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 11px 5px 10px;
+  border: 1px solid transparent;
+  border-radius: $radius-full;
+  background: transparent;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    color var(--dur-hover) var(--ease-out-strong),
+    background-color var(--dur-hover) var(--ease-out-strong),
+    border-color var(--dur-hover) var(--ease-out-strong),
+    transform var(--dur-press) var(--ease-out-strong);
+
+  &[aria-pressed='true'] {
+    background: var(--floating-surface, var(--bg-primary));
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+  }
+
+  &:hover:not(:disabled) {
+    color: var(--text-primary);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  &:disabled {
+    cursor: default;
+    color: var(--text-tertiary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 1px;
+  }
+}
+
+.toggleIcon {
+  display: inline-flex;
+  color: var(--text-tertiary);
+}
+
+.dot {
+  position: relative;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--viz-success);
+  flex-shrink: 0;
+}
+
+.dotOff {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--text-quaternary);
+}
+
+/* A single ring per poll (the dot is re-keyed on each tick), stepped so Chrome only renders a frame
+   per step instead of every display refresh; see .liveDotOn in RequestsPage.module.scss. Removed
+   entirely when paused or the tab is hidden. */
+.dotLive::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1.5px solid var(--viz-success);
+  opacity: 0;
+  animation: live-ring 0.6s steps(3) both;
+}
+
+@keyframes live-ring {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.55;
+  }
+  70%,
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.select {
+  appearance: none;
+  border: 0;
+  border-radius: $radius-full;
+  padding: 5px 24px 5px 9px;
+  font: inherit;
+  font-family: $font-mono;
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%239c958d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+    no-repeat right 8px center;
+
+  &:hover:not(:disabled) {
+    color: var(--text-primary);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 1px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dotLive::after {
+    animation: none;
+  }
+  .toggle {
+    transition: none;
+  }
+}

@@ -1,0 +1,371 @@
+@use '../../../styles/mixins' as *;
+
+.chart {
+  --chart-height: 176px;
+  --bar-max-width: 22px;
+  --axis-w: 38px;
+
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  @include mobile {
+    --chart-height: 150px;
+    --axis-w: 30px;
+  }
+}
+
+.loading {
+  padding-top: 6px;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  b {
+    font-family: $font-mono;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-primary);
+  }
+}
+
+.swatch {
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+  flex: none;
+}
+
+.swatchSuccess {
+  background: var(--viz-success);
+}
+
+.swatchFailure {
+  background: var(--viz-failure);
+}
+
+.swatchLine {
+  width: 14px;
+  height: 2px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--text-primary) 62%, transparent);
+}
+
+.plot {
+  display: flex;
+  gap: 8px;
+  padding-top: 6px;
+}
+
+.yAxis {
+  position: relative;
+  flex: none;
+  width: var(--axis-w);
+  height: var(--chart-height);
+}
+
+.yAxisRight .yTick {
+  right: auto;
+  left: 0;
+}
+
+.yTick {
+  position: absolute;
+  right: 0;
+  transform: translateY(-50%);
+  font-family: $font-mono;
+  font-size: 10.5px;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  /* Labels are keyed by their text, so only the ones that change fade in (no snapping over bars). */
+  animation: tick-in 0.24s ease-out both;
+}
+
+.canvas {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: var(--chart-height);
+}
+
+.gridlines {
+  position: absolute;
+  inset: 0;
+}
+
+.gridline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: color-mix(in srgb, var(--border-color) 70%, transparent);
+
+  &:last-child {
+    background: var(--border-primary);
+  }
+}
+
+.columns {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+}
+
+.column {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  cursor: default;
+}
+
+.stack {
+  position: relative;
+  width: 100%;
+  max-width: var(--bar-max-width);
+  height: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  transform-origin: bottom center;
+  animation: bar-grow 0.42s var(--ease-out-strong) both;
+  animation-delay: var(--bar-delay, 0ms);
+  transition: filter 120ms ease-out;
+}
+
+.columnActive .stack {
+  filter: brightness(1.08);
+}
+
+.columnActive::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 0 0;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--text-primary) 5%, transparent);
+}
+
+.segment {
+  display: block;
+  width: 100%;
+  border-radius: 3px 3px 0 0;
+  transition: height 0.36s var(--ease-out-strong);
+}
+
+.success {
+  background: var(--viz-success);
+}
+
+.failure {
+  background: var(--viz-failure);
+}
+
+.segmentGap {
+  margin-bottom: 2px;
+}
+
+.squareTop {
+  border-radius: 0;
+}
+
+.idle {
+  display: block;
+  width: 100%;
+  height: 2px;
+  border-radius: $radius-full;
+  background: var(--border-primary);
+}
+
+.line {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  /* Drawn in left to right behind the bar wave when the column set changes. */
+  animation: line-draw 0.62s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+
+  path {
+    /* Same-shape updates morph the curve (where CSS `d` is supported) instead of snapping. */
+    transition: d 0.36s var(--ease-out-strong);
+    fill: none;
+    stroke: color-mix(in srgb, var(--text-primary) 62%, transparent);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+}
+
+.lineDot {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  border-radius: 50%;
+  background: var(--bg-primary);
+  box-shadow: 0 0 0 1.5px var(--text-primary);
+  pointer-events: none;
+  transition:
+    left 200ms var(--ease-out-strong),
+    top 200ms var(--ease-out-strong);
+}
+
+.empty {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+  pointer-events: none;
+  animation: tick-in 0.3s ease-out 0.12s both;
+}
+
+.tooltip {
+  position: absolute;
+  top: 4px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 156px;
+  padding: 8px 12px;
+  border-radius: $radius-md;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop-filter);
+  -webkit-backdrop-filter: var(--glass-backdrop-filter);
+  box-shadow: var(--shadow-lg);
+  font-size: 12px;
+  color: var(--text-secondary);
+  pointer-events: none;
+  transition:
+    left 200ms var(--ease-out-strong),
+    transform 200ms var(--ease-out-strong),
+    opacity 150ms ease-out;
+
+  @starting-style {
+    opacity: 0;
+  }
+}
+
+.tooltipTime {
+  font-family: $font-mono;
+  font-weight: 650;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.tooltipRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  b {
+    margin-left: auto;
+    font-family: $font-mono;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.tooltipFoot {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 2px;
+  padding-top: 5px;
+  border-top: 1px solid var(--border-color);
+  font-family: $font-mono;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+
+  b {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+}
+
+.xAxis {
+  position: relative;
+  height: 14px;
+  margin: 0 calc(var(--axis-w) + 8px);
+}
+
+.xTick {
+  position: absolute;
+  transform: translateX(-50%);
+  font-family: $font-mono;
+  font-size: 10.5px;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  animation: tick-in 0.28s ease-out both;
+}
+
+@keyframes tick-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes line-draw {
+  from {
+    /* Negative insets so the stroke overflowing the plot edges is never clipped once drawn. */
+    clip-path: inset(-8px 100% -8px -8px);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  to {
+    clip-path: inset(-8px -8px -8px -8px);
+    opacity: 1;
+  }
+}
+
+@keyframes bar-grow {
+  from {
+    transform: scaleY(0.02);
+    opacity: 0;
+  }
+  to {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stack,
+  .segment,
+  .tooltip,
+  .lineDot,
+  .line,
+  .line path,
+  .yTick,
+  .xTick,
+  .empty {
+    animation: none;
+    transition: none;
+  }
+}

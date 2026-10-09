@@ -1,0 +1,192 @@
+@use '../../styles/mixins' as *;
+
+.page {
+  gap: 18px;
+}
+
+.liveMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.liveDot {
+  position: relative;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text-quaternary);
+}
+
+.liveDotOn {
+  background: var(--viz-success);
+
+  /* One tiny pulse per poll (the dot is re-keyed on each tick). Stepped on purpose: Chrome only
+     produces a frame when a step lands, whereas a smooth or looping pulse renders this heavy page at
+     the display's full refresh rate (~10-25% CPU on a 144 Hz screen). Removed when paused or the
+     tab is hidden. */
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: var(--viz-success);
+    opacity: 0;
+    animation: meta-pulse 0.6s steps(3) both;
+  }
+}
+
+@keyframes meta-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  70%,
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+  transition: opacity 0.2s var(--ease-out-strong);
+}
+
+/* Only after a beat: cached/fast switches never dim, slow ones settle at 60% until data lands. */
+.pending {
+  opacity: 0.6;
+  transition-delay: 140ms;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  min-width: 0;
+}
+
+.search {
+  flex: 0 1 380px;
+
+  @include mobile {
+    flex: 1 1 100%;
+  }
+}
+
+.retry {
+  margin-left: 6px;
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.notice {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--amber-text);
+  background: var(--amber-10);
+  border: 1px solid var(--amber-30);
+  border-radius: 10px;
+  padding: 9px 12px;
+}
+
+.panelHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  padding: 14px 16px 0;
+}
+
+.chartBody {
+  padding: 12px 16px 14px;
+}
+
+.streamPanel {
+  overflow: hidden;
+
+  .panelHead {
+    padding-bottom: 12px;
+  }
+}
+
+.streamActions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.refineNote {
+  font-family: $font-mono;
+  font-size: 11.5px;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.linkButton {
+  border: 0;
+  background: none;
+  padding: 2px 4px;
+  font: inherit;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: var(--border-hover);
+  text-underline-offset: 3px;
+
+  &:hover {
+    color: var(--text-primary);
+  }
+}
+
+.viewLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.viewCount {
+  font-family: $font-mono;
+  font-size: 10.5px;
+  font-weight: 650;
+  padding: 0 5px;
+  border-radius: $radius-full;
+  color: var(--failure-badge-text);
+  background: var(--failure-badge-bg);
+}
+
+.viewPad {
+  padding: 0 0 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liveDotOn::after {
+    animation: none;
+  }
+
+  .body {
+    transition: none;
+  }
+}

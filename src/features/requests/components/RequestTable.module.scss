@@ -1,0 +1,327 @@
+@use '../../../styles/mixins' as *;
+
+.wrap {
+  position: relative;
+  min-width: 0;
+  transition: opacity var(--dur-hover) var(--ease-out-strong);
+}
+
+.reloading {
+  opacity: 0.55;
+  /* Only dim when a fetch is actually slow; fast refetches swap in place without a blink. */
+  transition-delay: 220ms;
+}
+
+.scroller {
+  max-height: min(74vh, 880px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+
+  @include mobile {
+    max-height: 70vh;
+  }
+}
+
+.table {
+  min-width: 1250px;
+  font-size: 12.5px;
+
+  th {
+    background: var(--bg-primary);
+    box-shadow: inset 0 -1px 0 var(--border-color);
+    border-bottom: 0;
+    padding: 9px 10px;
+  }
+
+  td {
+    padding: 8px 10px;
+  }
+}
+
+.th {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.sorted {
+  color: var(--text-primary) !important;
+}
+
+.compact .table {
+  font-size: 12px;
+
+  td {
+    padding: 4px 10px;
+  }
+
+  th {
+    padding: 7px 10px;
+  }
+}
+
+.row {
+  cursor: pointer;
+  outline: none;
+
+  &:focus-visible td {
+    background: color-mix(in srgb, var(--text-primary) 6%, transparent);
+  }
+
+  &:focus-visible td:first-child {
+    box-shadow: inset 2px 0 0 var(--text-primary);
+  }
+}
+
+.selected td {
+  background: color-mix(in srgb, var(--text-primary) 7%, transparent) !important;
+}
+
+.selected td:first-child {
+  box-shadow: inset 2px 0 0 var(--text-primary);
+}
+
+/* Arrival: the row's content fades in while the body slides down (RequestTable.tsx), then a soft
+   tint and accent edge hold for a beat and ease out. Both animate opacity only, so the compositor
+   runs them; the tint sits on an overlay rather than animating the cells' background-color, which
+   repaints the whole table on every frame. */
+.fresh td,
+.freshFail td {
+  position: relative;
+  animation: arrive-in 0.32s var(--ease-out-strong) backwards;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    animation: arrive-tint 1.6s cubic-bezier(0.33, 0, 0.2, 1) backwards;
+  }
+}
+
+.fresh td::before {
+  background: color-mix(in srgb, var(--viz-success) 14%, transparent);
+}
+
+.fresh td:first-child::before {
+  box-shadow: inset 2px 0 0 var(--viz-success);
+}
+
+.freshFail td::before {
+  background: color-mix(in srgb, var(--viz-failure) 16%, transparent);
+  animation-duration: 2.2s;
+}
+
+.freshFail td:first-child::before {
+  box-shadow: inset 2px 0 0 var(--viz-failure);
+}
+
+@keyframes arrive-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes arrive-tint {
+  0%,
+  22% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.time {
+  font-family: $font-mono;
+  font-size: 12px;
+  color: var(--text-primary) !important;
+}
+
+.compact .time {
+  font-size: 11.5px;
+}
+
+.day {
+  margin-right: 6px;
+  color: var(--text-tertiary);
+}
+
+.modelCell {
+  max-width: 320px;
+}
+
+.model {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+}
+
+.modelName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-primary);
+  font-weight: 550;
+}
+
+.stream {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+}
+
+.credCell {
+  max-width: 230px;
+}
+
+.endpoint {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: $font-mono;
+  font-size: 11.5px;
+  color: var(--text-tertiary) !important;
+}
+
+.method {
+  margin-right: 5px;
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  color: var(--text-quaternary);
+}
+
+.num {
+  text-align: right;
+  font-family: $font-mono;
+  font-size: 12px;
+  color: var(--text-primary) !important;
+}
+
+.compact .num {
+  font-size: 11.5px;
+}
+
+.muted {
+  color: var(--text-tertiary) !important;
+}
+
+.toneWarn {
+  color: var(--amber-text) !important;
+}
+
+.toneBad {
+  color: var(--viz-failure) !important;
+}
+
+.failedRow .modelName {
+  color: var(--text-secondary);
+}
+
+.skeletonRow td {
+  cursor: default;
+}
+
+.empty {
+  padding: 32px 16px 40px;
+}
+
+.sentinel {
+  height: 1px;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px 12px;
+  border-top: 1px solid color-mix(in srgb, var(--border-color) 60%, transparent);
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.footerCount {
+  font-family: $font-mono;
+  font-variant-numeric: tabular-nums;
+}
+
+.footerEnd {
+  color: var(--text-quaternary);
+}
+
+.loadOlder {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border: 1px solid var(--border-color);
+  border-radius: $radius-full;
+  background: none;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.7;
+  }
+}
+
+/* Floating "N new requests" pill: shown instead of shifting rows under a scrolled reader. */
+.newPill {
+  position: absolute;
+  top: 44px;
+  left: 50%;
+  z-index: 3;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 0;
+  border-radius: $radius-full;
+  background: var(--text-primary);
+  color: var(--bg-secondary);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--text-primary) 22%, transparent);
+  cursor: pointer;
+  animation: pill-in 0.28s var(--ease-out-strong);
+  font-variant-numeric: tabular-nums;
+
+  &:active {
+    transform: translateX(-50%) scale(0.97);
+  }
+}
+
+@keyframes pill-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fresh td,
+  .fresh td::before,
+  .freshFail td,
+  .freshFail td::before,
+  .newPill {
+    animation-duration: 0.01ms;
+  }
+  .wrap {
+    transition: none;
+  }
+}
