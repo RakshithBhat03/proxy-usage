@@ -1,0 +1,138 @@
+@use '../../../styles/mixins' as *;
+
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.rangeRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  min-width: 0;
+}
+
+.compareDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid var(--text-tertiary);
+  transition:
+    background-color var(--dur-hover) var(--ease-out-strong),
+    border-color var(--dur-hover) var(--ease-out-strong);
+}
+
+.compareDotOn {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
+.filterRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+
+.search {
+  flex: 1 1 240px;
+  height: 32px;
+  margin-left: auto;
+  max-width: 380px;
+
+  @include mobile {
+    max-width: none;
+    margin-left: 0;
+  }
+}
+
+.chips {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  /* The row opens instead of shoving the page down in one frame (height:auto needs interpolate-size). */
+  overflow: clip;
+  animation: chips-open 0.26s var(--ease-out-strong) both;
+}
+
+@keyframes chips-open {
+  from {
+    height: 0;
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chips {
+    animation: none;
+  }
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  max-width: 320px;
+  padding: 3px 4px 3px 10px;
+  border-radius: $radius-full;
+  background: color-mix(in srgb, var(--text-primary) 7%, transparent);
+  font-size: 12px;
+  font-weight: 550;
+  color: var(--text-primary);
+  animation: chip-in 200ms var(--ease-out-strong);
+
+  button {
+    display: inline-grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: var(--text-tertiary);
+    cursor: pointer;
+
+    &:hover {
+      background: color-mix(in srgb, var(--text-primary) 10%, transparent);
+      color: var(--text-primary);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes chip-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+
+.chipLabel {
+  @include text-ellipsis;
+}
+
+.clearAll {
+  border: 0;
+  background: none;
+  padding: 3px 6px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 550;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+
+  &:hover {
+    color: var(--text-primary);
+  }
+}

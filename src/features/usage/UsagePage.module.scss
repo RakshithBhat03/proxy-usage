@@ -1,0 +1,126 @@
+@use '../../styles/mixins' as *;
+
+.page {
+  gap: 18px;
+}
+
+.top {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.bodyOuter {
+  min-width: 0;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  transition: opacity 0.2s var(--ease-out-strong);
+}
+
+/* Only after a beat: cached/fast switches never dim, slow ones settle at 60% until data lands. */
+.pending {
+  opacity: 0.6;
+  transition-delay: 140ms;
+}
+
+.twoCol {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  min-width: 0;
+
+  @media (max-width: 1000px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.twoColWide {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 14px;
+  min-width: 0;
+  align-items: start;
+
+  @media (max-width: 1100px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.attentionDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--amber-color);
+}
+
+.retry {
+  margin-left: 6px;
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.coverage {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--amber-text);
+  background: var(--amber-10);
+  border: 1px solid var(--amber-30);
+  border-radius: 10px;
+  padding: 9px 12px;
+}
+
+.chartLoading {
+  display: grid;
+  place-items: center;
+  height: 290px;
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+}
+
+/* ---------- Skeleton ---------- */
+
+.skeletonTiles {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 176px), 1fr));
+
+  @media (min-width: 1100px) {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  gap: 10px;
+
+  @include mobile {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.skeletonHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.skeletonBars {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 200px;
+  padding-left: 46px;
+
+  > * {
+    flex: 1;
+  }
+}

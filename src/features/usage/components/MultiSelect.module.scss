@@ -1,0 +1,226 @@
+@use '../../../styles/mixins' as *;
+
+.root {
+  position: relative;
+  display: inline-flex;
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 10px 0 12px;
+  border: 1px solid var(--border-color);
+  border-radius: $radius-full;
+  background: none;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 550;
+  color: var(--text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    border-color var(--dur-hover) var(--ease-out-strong),
+    background-color var(--dur-hover) var(--ease-out-strong),
+    color var(--dur-hover) var(--ease-out-strong),
+    transform var(--dur-press) var(--ease-out-strong);
+
+  &:hover {
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+}
+
+.triggerActive {
+  border-color: var(--border-hover);
+  background: color-mix(in srgb, var(--bg-tertiary) 70%, transparent);
+  color: var(--text-primary);
+}
+
+.triggerIcon {
+  display: inline-flex;
+  color: var(--text-tertiary);
+}
+
+.count {
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: $radius-full;
+  background: var(--text-primary);
+  color: var(--bg-secondary);
+  font-family: $font-mono;
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+
+.caret,
+.caretOpen {
+  color: var(--text-tertiary);
+  transition: transform var(--dur-hover) var(--ease-out-strong);
+}
+
+.caretOpen {
+  transform: rotate(180deg);
+}
+
+.popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 40;
+  width: min(320px, calc(100vw - 32px));
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--floating-surface, var(--bg-primary));
+  box-shadow: var(--floating-shadow, var(--shadow-lg));
+  overflow: hidden;
+  animation: pop-in 180ms var(--ease-out-strong);
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-tertiary);
+
+  input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: none;
+    background: none;
+    font: inherit;
+    font-size: 12.5px;
+    color: var(--text-primary);
+  }
+}
+
+.list {
+  max-height: 280px;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+.empty {
+  padding: 14px;
+  font-size: 12px;
+  color: var(--text-quaternary);
+  text-align: center;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 8px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  font: inherit;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+  }
+}
+
+.box {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 15px;
+  height: 15px;
+  border: 1.5px solid var(--border-hover);
+  border-radius: 4px;
+  color: var(--bg-secondary);
+  transition:
+    background-color var(--dur-press) var(--ease-out-strong),
+    border-color var(--dur-press) var(--ease-out-strong);
+}
+
+.boxChecked {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
+.optionLabel {
+  flex: 1;
+  min-width: 0;
+  @include text-ellipsis;
+}
+
+.optionHint {
+  font-family: $font-mono;
+  font-size: 10.5px;
+  color: var(--text-quaternary);
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 10px;
+  border-top: 1px solid var(--border-color);
+}
+
+.footerLink {
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    color: var(--text-primary);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+}
+
+.footerDone {
+  border: 0;
+  border-radius: $radius-full;
+  padding: 5px 12px;
+  background: var(--text-primary);
+  color: var(--bg-secondary);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
