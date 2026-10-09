@@ -1,0 +1,8 @@
+node_modules
+dist
+docs
+.git
+*.log
+.env*
+tailscale
+.playwright-mcp
