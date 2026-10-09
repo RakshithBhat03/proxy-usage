@@ -2,10 +2,10 @@ import { DAY_MS, MINUTE_MS } from '@/lib/quota/parse';
 import type { QuotaObservation } from './types';
 
 /**
- * Browser-side quota log. The Manager keeps only the current and previous cycle per window, and
- * Claude responses do not carry quota headers into the event store, so every reading this page sees
- * (traffic signals, snapshots, Quota page live reads) is kept here. History then grows for as long
- * as the app is used, instead of being limited to what the server still has.
+ * Browser-side quota log. Claude responses do not carry quota headers into the event store, and
+ * auth-file signals only hold the latest reading, so every reading this page sees (traffic signals,
+ * Quota page live reads) is kept here. History then grows for as long as the app is used, instead
+ * of being limited to what the server still has.
  * Rows hold only window ids, timestamps and percentages, keyed by auth-file name like the Quota
  * page's live cache.
  */

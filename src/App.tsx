@@ -36,14 +36,14 @@ const renderRoutes = (location: Location) => (
 );
 
 export function App() {
-  const adminKey = useAuthStore((state) => state.adminKey);
+  const managementKey = useAuthStore((state) => state.managementKey);
   const initializeTheme = useThemeStore((state) => state.initializeTheme);
 
   useEffect(() => initializeTheme(), [initializeTheme]);
 
   return (
     <>
-      {adminKey ? <MainLayout renderRoutes={renderRoutes} /> : <LoginPage />}
+      {managementKey ? <MainLayout renderRoutes={renderRoutes} /> : <LoginPage />}
       <NotificationContainer />
     </>
   );

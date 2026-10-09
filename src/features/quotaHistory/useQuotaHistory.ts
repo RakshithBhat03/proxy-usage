@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { keepPreviousData, useQueries, useQuery } from '@tanstack/react-query';
 import { AUTH_FILES_QUERY_KEY, fetchAuthFiles } from '@/lib/api/authFiles';
 import { DAY_MS, MINUTE_MS } from '@/lib/quota/parse';
-import { fetchHeaderHistory, fetchSnapshotHistory, fetchWindowUsage, type UsageTarget } from '@/lib/quotaHistory/api';
+import { fetchHeaderHistory, fetchWindowUsage, type UsageTarget } from '@/lib/quotaHistory/api';
 import { buildWindows } from '@/lib/quotaHistory/build';
 import { logObservations, readLoggedObservations } from '@/lib/quotaHistory/log';
 import { HEADER_QUOTA_PROVIDERS, historyCredentials, observationsFromSignals, observationsFromStoredLive, windowModelScope, type WindowModelScope } from '@/lib/quotaHistory/sources';
@@ -70,16 +70,6 @@ export function useQuotaHistory({ credKeys, provider = 'all', range, now, enable
       allCreds.filter((c) => providerMatches(c, provider) && (credKeys === null || credMatches(c, credKeys))),
     [allCreds, credKeys, provider],
   );
-  const credNames = creds.map((c) => c.key);
-
-  const snapshots = useQuery({
-    queryKey: [...ROOT, 'snapshots', credNames],
-    queryFn: ({ signal }) => fetchSnapshotHistory(creds, signal),
-    enabled: enabled && creds.length > 0,
-    staleTime: 30_000,
-    refetchInterval: enabled ? POLL_MS : false,
-    placeholderData: keepPreviousData,
-  });
 
   // A 10-minute-aligned range start keeps query keys stable between renders.
   const fromMs = Math.floor((now - RANGE_DAYS[range] * DAY_MS) / (10 * MINUTE_MS)) * 10 * MINUTE_MS;
@@ -97,14 +87,14 @@ export function useQuotaHistory({ credKeys, provider = 'all', range, now, enable
   const headerByKey = new Map(headerCreds.map((cred, i) => [cred.key, headers[i]]));
   const headerStamp = headers.map((h) => `${h.dataUpdatedAt}:${h.errorUpdatedAt}`).join(',');
 
-  /* Passive readings: auth-file signals, snapshots, the Quota page's live cache, our own log. */
+  /* Passive readings: auth-file signals and the Quota page's live cache (header readings and our own log join below). */
   const passive = useMemo(() => {
     const map = new Map<string, QuotaObservation[]>();
     for (const cred of creds) {
-      map.set(cred.key, [...observationsFromSignals(cred), ...observationsFromStoredLive(cred), ...(snapshots.data?.[cred.key]?.observations ?? [])]);
+      map.set(cred.key, [...observationsFromSignals(cred), ...observationsFromStoredLive(cred)]);
     }
     return map;
-  }, [creds, snapshots.data]);
+  }, [creds]);
 
   useEffect(() => {
     if (!enabled || passive.size === 0) return;
@@ -115,7 +105,7 @@ export function useQuotaHistory({ credKeys, provider = 'all', range, now, enable
     return creds.map((cred) => {
       const header = headerByKey.get(cred.key)?.data;
       const observations = [...(passive.get(cred.key) ?? []), ...readLoggedObservations(cred.key), ...(header?.observations ?? [])];
-      const windows = buildWindows(observations, snapshots.data?.[cred.key]?.cycles ?? [], {
+      const windows = buildWindows(observations, {
         provider: cred.provider,
         now,
         scheduleBackToMs: fromMs,
@@ -133,7 +123,7 @@ export function useQuotaHistory({ credKeys, provider = 'all', range, now, enable
       };
     });
     // headerStamp stands in for the per-query results array, which is a new object every render.
-  }, [creds, passive, snapshots.data, headerStamp, now, fromMs]);
+  }, [creds, passive, headerStamp, now, fromMs]);
 
   const targets = useMemo(() => {
     const list: UsageTarget[] = [];
@@ -186,10 +176,10 @@ export function useQuotaHistory({ credKeys, provider = 'all', range, now, enable
     allCreds,
     rows,
     fromMs,
-    loading: files.isPending || (creds.length > 0 && snapshots.isPending) || headerPending,
+    loading: files.isPending || headerPending,
     usageLoading: usage.isPending && targets.length > 0,
-    fetching: files.isFetching || snapshots.isFetching || usage.isFetching || headers.some((h) => h.isFetching),
-    error: (files.error as Error | null) ?? (snapshots.error as Error | null) ?? null,
+    fetching: files.isFetching || usage.isFetching || headers.some((h) => h.isFetching),
+    error: (files.error as Error | null) ?? null,
     usageError: usage.error as Error | null,
   };
 }

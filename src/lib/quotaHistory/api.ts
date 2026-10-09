@@ -1,47 +1,10 @@
 import { LOCAL_TIME_ZONE, queryAnalytics } from '@/lib/api/analytics';
 import { api } from '@/lib/api/client';
 import { MINUTE_MS } from '@/lib/quota/parse';
-import { credentialTarget, fromSnapshotItem, observationsFromEvent, type SnapshotItemRaw } from './sources';
-import type { CycleBoundary, HistoryCredential, QuotaObservation, WindowUsage } from './types';
+import { credentialTarget, observationsFromEvent } from './sources';
+import type { HistoryCredential, QuotaObservation, WindowUsage } from './types';
 
-/* ---------- POST /v0/management/quota-snapshots/query (read-only) ---------- */
-
-const MAX_SNAPSHOT_ACCOUNTS = 200;
-
-export interface SnapshotHistory {
-  observations: QuotaObservation[];
-  cycles: CycleBoundary[];
-}
-
-/** The decoder rejects unknown fields; only the documented account keys are sent. */
-export async function fetchSnapshotHistory(creds: HistoryCredential[], signal?: AbortSignal): Promise<Record<string, SnapshotHistory>> {
-  const targets = creds.slice(0, MAX_SNAPSHOT_ACCOUNTS);
-  if (targets.length === 0) return {};
-  const rows = new Map(targets.map((cred, i) => [`r${i}`, cred]));
-  const response = await api<{ items?: SnapshotItemRaw[] }>('/v0/management/quota-snapshots/query', {
-    method: 'POST',
-    body: {
-      accounts: [...rows].map(([row_key, cred]) => {
-        const { auth_file_snapshot, auth_provider_snapshot, auth_index, auth_label_snapshot, source, auth_account_id_snapshot } = credentialTarget(cred);
-        const account: Record<string, string> = { auth_file_snapshot, auth_provider_snapshot, source };
-        if (auth_index) account.auth_index = auth_index;
-        if (auth_label_snapshot) account.auth_label_snapshot = auth_label_snapshot;
-        if (auth_account_id_snapshot) account.auth_account_id_snapshot = auth_account_id_snapshot;
-        return { row_key, provider: cred.provider, account };
-      }),
-      include_inactive: false,
-    },
-    signal,
-  });
-  const out: Record<string, SnapshotHistory> = {};
-  for (const item of response?.items ?? []) {
-    const cred = item.row_key ? rows.get(item.row_key) : undefined;
-    if (cred) out[cred.key] = fromSnapshotItem(cred.provider, item);
-  }
-  return out;
-}
-
-/* ---------- quota headers on raw events (POST /monitoring/analytics, events_page) ---------- */
+/* ---------- quota headers on raw events (POST /api/analytics, events_page) ---------- */
 
 const EVENT_PAGE = 5000;
 const MAX_PAGES = 8;
@@ -106,7 +69,7 @@ export async function fetchHeaderHistory(cred: HistoryCredential, fromMs: number
   return { observations: entry.observations.filter((o) => o.observedAtMs >= fromMs), truncatedBeforeMs: entry.truncatedBeforeMs };
 }
 
-/* ---------- POST /v0/management/monitoring/account-window-usage (read-only) ---------- */
+/* ---------- POST /api/account-window-usage (read-only) ---------- */
 
 export interface UsageTarget {
   key: string;
@@ -143,7 +106,7 @@ export async function fetchWindowUsage(targets: UsageTarget[], signal?: AbortSig
   const out: Record<string, WindowUsage> = {};
   for (let i = 0; i < valid.length; i += MAX_WINDOWS_PER_CALL) {
     const chunk = valid.slice(i, i + MAX_WINDOWS_PER_CALL);
-    const res = await api<{ items?: WindowUsageItem[] }>('/v0/management/monitoring/account-window-usage', {
+    const res = await api<{ items?: WindowUsageItem[] }>('/api/account-window-usage', {
       method: 'POST',
       body: {
         windows: chunk.map((t) => ({

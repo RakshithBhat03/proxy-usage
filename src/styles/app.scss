@@ -746,3 +746,21 @@
 :root {
   interpolate-size: allow-keywords;
 }
+
+/* Quiet one-line notices (server status, history coverage). */
+.kit-notice {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 9px 12px;
+  overflow-wrap: anywhere;
+}
+
+.kit-notice--attention {
+  color: var(--amber-text);
+  background: var(--amber-10);
+  border-color: var(--amber-30);
+}

@@ -40,7 +40,7 @@ export const FAILURE_CLASS_LABELS: Record<FailureClass, { label: string; hint: s
   other: { label: 'Other', hint: 'No status code' },
 };
 
-/** docs/research/monitoring-api.md §6.7 */
+/** Buckets a failed request by status code and error kind (semantics follow CPA Manager Plus, MIT). */
 export function classifyFailure(
   event: Pick<EventRow, 'fail_status_code' | 'fail_summary' | 'header_error_kind' | 'failed'>,
 ): FailureClass {
@@ -82,7 +82,7 @@ export function cacheHitRate(e: Pick<EventRow, 'input_tokens' | 'cached_tokens' 
   return e.input_tokens > 0 ? Math.min(1, cacheReadTokens(e) / e.input_tokens) : 0;
 }
 
-/** Nearest-rank percentile over positive values (server parity, §6.2). */
+/** Nearest-rank percentile over positive values (matches the server's p95). */
 export function percentile(values: number[], p: number): number | null {
   const sorted = values.filter((v) => v > 0).sort((a, b) => a - b);
   if (sorted.length === 0) return null;
@@ -127,7 +127,7 @@ interface CredentialLike {
   source?: string;
 }
 
-/** §8.1: live auth-file label first, then request-time snapshots. Callers still mask the result. */
+/** Live auth-file label first, then request-time snapshots. Callers still mask the result. */
 export function credentialLabel(row: CredentialLike, auth: AuthIndexMap): string {
   const file = row.auth_index ? auth.get(row.auth_index) : undefined;
   const fileLabel =

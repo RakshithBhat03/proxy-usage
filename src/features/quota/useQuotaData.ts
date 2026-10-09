@@ -1,13 +1,12 @@
 import { useCallback, useMemo, useRef } from 'react';
-import { useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueries, useQueryClient } from '@tanstack/react-query';
 import { AUTH_FILES_QUERY_KEY, useAuthFiles } from '@/lib/api/authFiles';
 import { resolveQuotaErrorMessage } from '@/lib/quota/apiCall';
 import { classifyQuotaFiles } from '@/lib/quota/files';
 import { LIVE_STALE_MS, liveLimiter, readStoredLive, storeLive, toLiveAccount } from '@/lib/quota/live';
-import { mergeCachedQuota, resolveDisplayQuota } from '@/lib/quota/model';
+import { resolveDisplayQuota } from '@/lib/quota/model';
 import { fetchLiveQuota } from '@/lib/quota/providers';
 import { quotaFromSignals } from '@/lib/quota/signals';
-import { querySnapshots } from '@/lib/quota/snapshots';
 import { statusOfError, type AccountQuota, type QuotaData, type QuotaEntry } from '@/lib/quota/types';
 
 export type CardStatus = 'idle' | 'loading' | 'success' | 'error';
@@ -15,7 +14,7 @@ export type CardStatus = 'idle' | 'loading' | 'success' | 'error';
 /** Everything the views need for one credential, derived from the single react-query store. */
 export interface QuotaEntryState {
   entry: QuotaEntry;
-  /** Best available numbers: live answer, else newest cached (signals / snapshot). */
+  /** Best available numbers: live answer, else the cached reading from traffic signals. */
   quota: AccountQuota | null;
   status: CardStatus;
   /** A live request for this credential is in flight. */
@@ -28,8 +27,7 @@ export interface QuotaEntryState {
 const liveKey = (entry: QuotaEntry) => ['quota', 'live', entry.key, entry.authIndex ?? ''] as const;
 
 /**
- * One normalized store: the auth-file list, optional Manager snapshots and one live query per
- * credential, all in react-query. Live queries paint from the last stored answer and only re-ask
+ * One normalized store: the auth-file list and one live query per credential, all in react-query. Live queries paint from the last stored answer and only re-ask
  * the provider when that answer is older than LIVE_STALE_MS; nothing polls.
  */
 export function useQuotaData(now: number) {
@@ -42,16 +40,6 @@ export function useQuotaData(now: number) {
   liveKeysRef.current = liveKeys;
   /** Keys whose next live fetch may run side-effecting probes (explicit single-card clicks only). */
   const probeKeysRef = useRef(new Set<string>());
-
-  const snapshotSignature = activeEntries.map((entry) => `${entry.key}:${entry.authIndex}`).join('|');
-  const snapshotsQuery = useQuery({
-    queryKey: ['quota', 'snapshots', snapshotSignature],
-    queryFn: ({ signal }) => querySnapshots(activeEntries, signal).catch((): Record<string, AccountQuota> => ({})),
-    enabled: activeEntries.length > 0,
-    staleTime: LIVE_STALE_MS,
-    retry: false,
-    refetchOnWindowFocus: false,
-  });
 
   const liveResults = useQueries({
     queries: activeEntries.map((entry) => {
@@ -81,12 +69,11 @@ export function useQuotaData(now: number) {
     return map;
   }, [activeEntries, liveResults]);
 
-  const snapshots = snapshotsQuery.data;
   const states = useMemo(() => {
     const map = new Map<string, QuotaEntryState>();
     for (const entry of entries) {
       const result = liveByKey.get(entry.key);
-      const cached = mergeCachedQuota(quotaFromSignals(entry, now), snapshots?.[entry.key]);
+      const cached = quotaFromSignals(entry, now);
       const live = result?.data ? toLiveAccount(result.data, result.dataUpdatedAt) : null;
       const quota = resolveDisplayQuota(live, cached);
       const fetching = result?.fetchStatus === 'fetching';
@@ -98,7 +85,7 @@ export function useQuotaData(now: number) {
       map.set(entry.key, { entry, quota, status, fetching, error, hasLive: Boolean(live) });
     }
     return map;
-  }, [entries, liveByKey, snapshots, now]);
+  }, [entries, liveByKey, now]);
 
   /** Re-reads one credential live. Null when skipped (already loading / unknown credential). */
   const refreshOne = useCallback(
@@ -117,10 +104,7 @@ export function useQuotaData(now: number) {
   /** "Refresh all credentials": re-read the list, then every enabled credential live. */
   const refreshAll = useCallback(async () => {
     await queryClient.refetchQueries({ queryKey: AUTH_FILES_QUERY_KEY });
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: ['quota', 'snapshots'] }),
-      queryClient.refetchQueries({ queryKey: ['quota', 'live'], type: 'active' }),
-    ]);
+    await queryClient.refetchQueries({ queryKey: ['quota', 'live'], type: 'active' });
   }, [queryClient]);
 
   const refreshing = filesQuery.isFetching || liveResults.some((result) => result.fetchStatus === 'fetching');

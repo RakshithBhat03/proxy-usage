@@ -9,6 +9,7 @@ import { useRevealGroup } from '@/hooks/motion';
 import { useHeaderRefresh } from '@/hooks/useHeaderRefresh';
 import { useNow } from '@/hooks/useNow';
 import { useTimeRange } from '@/hooks/useTimeRange';
+import { HistoryStartNotice } from '@/features/session/SessionBanner';
 import { formatClock, formatCost, formatInt, formatTokens } from '@/lib/format';
 import { MODEL_PRICES_QUERY_KEY, useModelPrices } from '@/lib/pricing';
 import { normalizeProvider, providerLabel } from '@/lib/providers';
@@ -98,7 +99,7 @@ export default function UsagePage() {
   const prices = useModelPrices();
 
   /* ---------- Prefetch ---------- */
-  // The Manager computes these stats from raw rows (0.3–0.6s per range), so ranges are warmed
+  // The server computes these stats from raw rows (0.3–0.6s per range), so ranges are warmed
   // ahead of the click: on hover/focus of a preset, and for every quick preset once the page is
   // idle. A click then renders straight from cache.
   const floorMs = floor.data ?? undefined;
@@ -322,12 +323,7 @@ export default function UsagePage() {
               : main.isFetching && main.isPlaceholderData
           }
         >
-          {res.coverage && (
-            <div className={styles.coverage} data-reveal>
-              Part of this range only has archived aggregates ({formatInt(res.coverage.raw_deleted_event_count)} raw events removed).
-              Some breakdowns may be incomplete: {res.coverage.fidelity_limitations.map((l) => l.replace(/_/g, ' ')).join(', ')}.
-            </div>
-          )}
+          <HistoryStartNotice fromMs={allTime ? null : range.fromMs} />
 
           {summary && (
             <KpiGrid

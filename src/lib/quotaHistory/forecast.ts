@@ -64,7 +64,7 @@ export function forecastWindow(window: HistoryWindow, now: number): QuotaForecas
   return { usedNow: used, observedAtMs: at, exhausted, lowConfidence, average, recent };
 }
 
-/* ---------- CPAMP "Current window forecast" (requests / tokens / cost) ---------- */
+/* ---------- "Current window forecast" (requests / tokens / cost) ---------- */
 
 export interface UsageMetrics {
   requests: number;
@@ -80,7 +80,7 @@ const usable = (m: UsageMetrics | null | undefined): m is UsageMetrics =>
   !!m && [m.requests, m.tokens, m.cost].every((v) => Number.isFinite(v) && v >= 0);
 
 /**
- * Port of CPAMP `features/accounts/model/estimateWindowUsage.ts:31-63`: if the provider says the
+ * Semantics follow CPA Manager Plus (MIT): if the provider says the
  * window is `used%` consumed and we counted `current` requests/tokens/cost inside it (up to that
  * reading), a full window is `current × 100 / used%`. Without a usable percentage it falls back to
  * the previous window's actual totals.

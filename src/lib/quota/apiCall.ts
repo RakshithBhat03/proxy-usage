@@ -102,7 +102,7 @@ export function resolveQuotaErrorMessage(status: number | undefined, message: st
  * read for one request and never stored.
  */
 export async function downloadAuthFileText(name: string, signal?: AbortSignal): Promise<string> {
-  const key = useAuthStore.getState().adminKey;
+  const key = useAuthStore.getState().managementKey;
   const response = await fetch(`/v0/management/auth-files/download?name=${encodeURIComponent(name)}`, {
     headers: key ? { Authorization: `Bearer ${key}` } : undefined,
     signal,

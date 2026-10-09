@@ -5,6 +5,12 @@ import { useIdentity } from '@/stores/privacy';
 import { ShareBar } from './sortable';
 import styles from './panels.module.scss';
 
+/**
+ * Short label for a client API key. Only the key's SHA-256 is stored, so the label is built from the
+ * hash (never from the key itself) and makes no pretence of showing the key's own characters.
+ */
+const apiKeyLabel = (hash: string) => (hash ? `key ••${hash.slice(0, 6)}` : 'unknown key');
+
 /** Client API keys. Rendered only when at least one event carried a key hash. */
 export function ApiKeysPanel({ rows, now }: { rows: ApiKeyStatRow[]; now: number }) {
   const identity = useIdentity();
@@ -36,8 +42,8 @@ export function ApiKeysPanel({ rows, now }: { rows: ApiKeyStatRow[]; now: number
           <tbody>
             {sorted.map((r) => (
               <tr key={r.id}>
-                <td data-mono="true" title={r.api_key_hash}>
-                  sk-••••{r.api_key_hash.slice(-4)}
+                <td data-mono="true" title={`SHA-256 of the client API key: ${r.api_key_hash}`}>
+                  {apiKeyLabel(r.api_key_hash)}
                 </td>
                 <td className={styles.dim}>{identity(r.auth_label_snapshot || r.account_snapshot || '') || '--'}</td>
                 <td data-align="right" data-mono="true">{formatInt(r.calls)}</td>

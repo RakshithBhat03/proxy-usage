@@ -2,15 +2,19 @@ import { useAuthStore } from '@/stores/auth';
 
 export class ApiError extends Error {
   readonly status: number;
+  /** Machine-readable `code` from the server's error body (e.g. `invalid_management_key`). */
   readonly code?: string;
+  /** Seconds to wait before retrying, for rate-limited responses (`retry_after_s`). */
+  readonly retryAfterS?: number;
   readonly body?: unknown;
 
-  constructor(message: string, status: number, code?: string, body?: unknown) {
+  constructor(message: string, status: number, code?: string, body?: unknown, retryAfterS?: number) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
     this.code = code;
     this.body = body;
+    this.retryAfterS = retryAfterS;
   }
 }
 
@@ -22,8 +26,8 @@ export interface RequestOptions {
   query?: Query;
   body?: unknown;
   signal?: AbortSignal;
-  /** Override the stored admin key (used by the login form to validate a candidate key). */
-  adminKey?: string;
+  /** Override the stored management key (used by the login form to validate a candidate key). */
+  managementKey?: string;
   headers?: Record<string, string>;
 }
 
@@ -43,11 +47,12 @@ export function buildQuery(query?: Query): string {
 }
 
 /**
- * Fetches JSON from the Manager Server through the same-origin proxy. A 401 clears the stored key
- * so the app falls back to the login screen instead of rendering a wall of errors.
+ * Fetches JSON from this app's server (same origin). A 401 clears the stored key so the app falls
+ * back to the login screen instead of rendering a wall of errors; calls that pass an explicit
+ * `managementKey` (login validation) never log out.
  */
 export async function api<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const key = options.adminKey ?? useAuthStore.getState().adminKey;
+  const key = options.managementKey ?? useAuthStore.getState().managementKey;
   const headers: Record<string, string> = { Accept: 'application/json', ...options.headers };
   if (key) headers.Authorization = `Bearer ${key}`;
   let body: BodyInit | undefined;
@@ -74,14 +79,21 @@ export async function api<T>(path: string, options: RequestOptions = {}): Promis
   }
 
   if (!response.ok) {
-    if (response.status === 401 && !options.adminKey) useAuthStore.getState().logout();
+    if (response.status === 401 && options.managementKey === undefined) useAuthStore.getState().logout();
     const record = (data && typeof data === 'object' ? data : {}) as Record<string, unknown>;
     const message =
       (typeof record.error === 'string' && record.error) ||
       (typeof record.message === 'string' && record.message) ||
       (typeof data === 'string' && data.slice(0, 200)) ||
       `Request failed (${response.status})`;
-    throw new ApiError(message, response.status, typeof record.code === 'string' ? record.code : undefined, data);
+    const retryAfter = Number(record.retry_after_s ?? response.headers.get('Retry-After'));
+    throw new ApiError(
+      message,
+      response.status,
+      typeof record.code === 'string' ? record.code : undefined,
+      data,
+      Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter : undefined,
+    );
   }
   return data as T;
 }

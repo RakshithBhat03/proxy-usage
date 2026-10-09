@@ -6,7 +6,7 @@ import type {
 } from '@/lib/api/analytics';
 import { normalizeProvider } from '@/lib/providers';
 
-/** Fractional change, CPAMP's definition: no baseline → +100% if anything appeared. */
+/** Fractional change (semantics follow CPA Manager Plus, MIT): no baseline → +100% if anything appeared. */
 export function pctChange(current: number, previous: number): number {
   return previous <= 0 ? (current > 0 ? 1 : 0) : (current - previous) / previous;
 }

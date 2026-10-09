@@ -1,7 +1,7 @@
 /**
  * Granular time ranges shared by the Usage and Request Monitor pages.
  *
- * The Manager's analytics endpoint accepts any [from_ms, to_ms) window but only buckets by `hour`
+ * The server's analytics endpoint accepts any [from_ms, to_ms) window but only buckets by `hour`
  * or `day` (aligned to the request's time zone). Everything finer or coarser is planned here:
  *  - sub-hour buckets (1m–30m) are built client-side from raw events, so they are only offered for
  *    short spans;

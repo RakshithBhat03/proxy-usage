@@ -15,6 +15,7 @@ import { useRevealGroup } from '@/hooks/motion';
 import { useHeaderRefresh } from '@/hooks/useHeaderRefresh';
 import { useSwapAnimation } from '@/hooks/useSwapAnimation';
 import { useTimeRange } from '@/hooks/useTimeRange';
+import { HistoryStartNotice } from '@/features/session/SessionBanner';
 import type { EventRow } from '@/lib/api/analytics';
 import { useAuthFiles } from '@/lib/api/authFiles';
 import { formatCompact, formatDuration, formatInt, formatRatio, maskIdentifier } from '@/lib/format';
@@ -158,7 +159,7 @@ export default function RequestsPage() {
   const shownAgg = presented.agg?.res;
 
   /* ---------- Prefetch ---------- */
-  // The Manager aggregates raw rows per query (0.1–0.6s), so likely next ranges are warmed ahead of
+  // The server aggregates raw rows per query (0.1–0.6s), so likely next ranges are warmed ahead of
   // the click: on hover/focus of a preset, and every quick preset once the page is idle.
   const { bucket } = time;
   const prefetchRange = useCallback(
@@ -374,7 +375,6 @@ export default function RequestsPage() {
   /* ---------- Render ---------- */
 
   const anyFilter = clientRefined || Object.keys(serverFilters).length > 0 || !!filters.search;
-  const coverage = shownAgg?.coverage;
   const streamError = stream.status === 'error' ? stream.error : null;
   const aggError = errorText(aggregates.error);
 
@@ -467,12 +467,7 @@ export default function RequestsPage() {
           Could not load summary: {aggError}
         </div>
       )}
-      {coverage && coverage.raw_deleted_event_count > 0 && (
-        <div className={styles.notice}>
-          {formatInt(coverage.raw_deleted_event_count)} archived requests in this range are no longer available individually;
-          totals still include them.
-        </div>
-      )}
+      <HistoryStartNotice fromMs={range.preset === 'all' ? null : range.fromMs} />
 
       <SwapBody swapKey={presented.key} pending={switching}>
         <div data-reveal>

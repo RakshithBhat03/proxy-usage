@@ -56,7 +56,6 @@ export function KpiGrid({ summary: s, comparison: c, previous: p, tiers, previou
 
   const rpm = rangeMinutes > 0 ? s.total_calls / rangeMinutes : 0;
   const tpm = rangeMinutes > 0 ? s.total_tokens / rangeMinutes : 0;
-  const tasksCapped = s.approx_tasks >= 500;
 
   const tiles: Array<{ key: string; node: ReactNode }> = [
     {
@@ -165,13 +164,17 @@ export function KpiGrid({ summary: s, comparison: c, previous: p, tiers, previou
       ),
     },
     {
-      key: 'tasks',
+      key: 'sessions',
       node: (
         <StatTile
-          label={<Label text="Approx. tasks" />}
-          value={s.approx_tasks}
-          format={(v) => (tasksCapped && Math.round(v) >= 500 ? '500+' : formatInt(v))}
-          hint={`${formatRatio(s.approx_task_success_rate)} clean · ${formatCompact(s.avg_daily_requests)} req/day`}
+          label={<Label text="Sessions" delta={rel(s.sessions, p?.sessions, 'neutral')} />}
+          value={s.sessions}
+          format={formatInt}
+          hint={
+            s.sessions > 0
+              ? `${formatRatio(s.session_success_rate)} clean · ${formatCompact(s.avg_daily_requests)} req/day`
+              : `${formatCompact(s.avg_daily_requests)} req/day`
+          }
         />
       ),
     },

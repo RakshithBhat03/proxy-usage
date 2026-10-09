@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { IconSidebarQuota } from '@/components/ui/icons';
 import { IconActivity, IconChartColumn, IconClock } from '@/components/ui/extraIcons';
 import { PageTransition } from '@/components/common/PageTransition';
+import { SessionBanner } from '@/features/session/SessionBanner';
 import { triggerHeaderRefresh, hasHeaderRefreshHandler } from '@/hooks/useHeaderRefresh';
 import { useAuthStore } from '@/stores/auth';
 import { useThemeStore, type Theme } from '@/stores/theme';
@@ -467,6 +468,7 @@ export function MainLayout({ renderRoutes }: MainLayoutProps) {
 
         <div className="content" ref={contentRef}>
           <main className="main-content">
+            <SessionBanner />
             <PageTransition render={renderRoutes} getRouteOrder={getRouteOrder} scrollContainerRef={contentRef} />
           </main>
         </div>

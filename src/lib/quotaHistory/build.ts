@@ -1,18 +1,17 @@
 import { MINUTE_MS } from '@/lib/quota/parse';
 import { windowKindOf, windowLabel } from './sources';
-import type { BoundaryBasis, CycleBoundary, HistoryWindow, ObservationSource, QuotaObservation, UsagePoint } from './types';
+import type { BoundaryBasis, HistoryWindow, ObservationSource, QuotaObservation, UsagePoint } from './types';
 
 /**
  * Turns scattered quota readings into windows. A reading belongs to the window whose scheduled
- * reset it reports, so readings are clustered per window id by reset time. Manager cycles add exact
- * boundaries (and windows nobody observed a percentage for), and overlapping windows reveal early
- * (manual) resets: Codex reset credits start a fresh window before the old one was due.
+ * reset it reports, so readings are clustered per window id by reset time. Overlapping windows
+ * reveal early (manual) resets: Codex reset credits start a fresh window before the old one was due.
  */
 
-const SOURCE_ORDER: ObservationSource[] = ['headers', 'snapshot', 'live', 'signals', 'log'];
+const SOURCE_ORDER: ObservationSource[] = ['headers', 'live', 'signals', 'log'];
 const MAX_POINTS_PER_WINDOW = 160;
 
-/** Reset times jitter by a second or two between responses; cycles drift by milliseconds. */
+/** Reset times jitter by a second or two between responses. */
 function resetTolerance(durationMs: number | null): number {
   if (durationMs === null) return 10 * MINUTE_MS;
   return Math.min(15 * MINUTE_MS, Math.max(3 * MINUTE_MS, durationMs * 0.01));
@@ -24,7 +23,6 @@ interface Cluster {
   durationMs: number | null;
   resetAtMs: number;
   observations: QuotaObservation[];
-  cycle: CycleBoundary | null;
 }
 
 function downsample(points: UsagePoint[]): UsagePoint[] {
@@ -48,7 +46,7 @@ export interface BuildOptions {
   scheduleBackToMs?: number;
 }
 
-export function buildWindows(observations: QuotaObservation[], cycles: CycleBoundary[], options: BuildOptions): HistoryWindow[] {
+export function buildWindows(observations: QuotaObservation[], options: BuildOptions): HistoryWindow[] {
   const { provider, now } = options;
   const byId = new Map<string, Cluster[]>();
   const clusterFor = (windowId: string, durationMs: number | null, resetAtMs: number): Cluster => {
@@ -64,7 +62,7 @@ export function buildWindows(observations: QuotaObservation[], cycles: CycleBoun
       if (best.durationMs === null && durationMs !== null) best.durationMs = durationMs;
       return best;
     }
-    const created: Cluster = { windowId, durationMs, resetAtMs, observations: [], cycle: null };
+    const created: Cluster = { windowId, durationMs, resetAtMs, observations: [] };
     list.push(created);
     return created;
   };
@@ -78,11 +76,6 @@ export function buildWindows(observations: QuotaObservation[], cycles: CycleBoun
     // Track the newest reported reset (the provider may correct it slightly over time).
     cluster.resetAtMs = obs.resetAtMs;
     if (obs.label && !cluster.label) cluster.label = obs.label;
-  }
-  for (const cycle of cycles) {
-    const cluster = clusterFor(cycle.windowId, cycle.durationMs, cycle.state === 'active' ? cycle.endMs : cycle.endMs);
-    cluster.cycle = cycle;
-    if (cycle.state === 'active') cluster.resetAtMs = cycle.endMs;
   }
 
   const windows: HistoryWindow[] = [];
@@ -122,15 +115,11 @@ function toWindow(cluster: Cluster, durationMs: number | null, label: string, ki
     points.push({ t: o.observedAtMs, used: Math.max(0, o.usedPercent) });
     lastT = o.observedAtMs;
   }
-  const cycle = cluster.cycle;
-  const duration = cycle?.durationMs ?? durationMs;
-  const scheduledEnd = cycle ? (cycle.state === 'active' ? cycle.endMs : Math.max(cycle.endMs, cluster.resetAtMs)) : cluster.resetAtMs;
+  const duration = durationMs;
+  const scheduledEnd = cluster.resetAtMs;
   let start: number;
   let boundary: BoundaryBasis;
-  if (cycle) {
-    start = cycle.startMs;
-    boundary = 'exact';
-  } else if (duration !== null) {
+  if (duration !== null) {
     start = cluster.resetAtMs - duration;
     boundary = 'observed';
   } else if (points.length > 0) {
@@ -139,9 +128,8 @@ function toWindow(cluster: Cluster, durationMs: number | null, label: string, ki
   } else {
     return null;
   }
-  const end = cycle && cycle.state === 'closed' ? cycle.endMs : scheduledEnd;
+  const end = scheduledEnd;
   const sources = SOURCE_ORDER.filter((s) => obs.some((o) => o.source === s));
-  if (cycle) sources.push('snapshot');
   const used = points.map((p) => p.used);
   return {
     uid: `${cluster.windowId}@${Math.round(scheduledEnd / MINUTE_MS)}`,
@@ -153,14 +141,14 @@ function toWindow(cluster: Cluster, durationMs: number | null, label: string, ki
     endMs: end,
     scheduledEndMs: scheduledEnd,
     status: 'past',
-    endedEarly: Boolean(cycle && cycle.state === 'closed' && cycle.endReason && cycle.endReason !== 'scheduled'),
+    endedEarly: false,
     boundary,
     peakUsed: used.length ? Math.max(...used) : null,
     lastUsed: used.length ? used[used.length - 1] : null,
     lastObservedAtMs: points.length ? points[points.length - 1].t : null,
     firstObservedAtMs: points.length ? points[0].t : null,
     points: downsample(points),
-    sources: [...new Set(sources)],
+    sources,
   };
 }
 
@@ -176,7 +164,7 @@ function resolveOverlaps(list: HistoryWindow[]) {
     const next = list[i + 1];
     const tol = resetTolerance(current.durationMs);
     if (next.startMs >= current.endMs - tol) continue;
-    if ((current.peakUsed ?? 0) === 0 && current.boundary !== 'exact') {
+    if ((current.peakUsed ?? 0) === 0) {
       list.splice(i, 1);
       i -= 1;
       continue;

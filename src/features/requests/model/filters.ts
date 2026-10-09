@@ -3,7 +3,7 @@ import { normalizeServiceTier, statusCodeOf } from './events';
 
 /**
  * Request Monitor filter state. Everything lives in the URL so a filtered view can be shared.
- * The server only understands a subset (see docs/research/monitoring-api.md §3.1), so status
+ * The server only understands a subset (`AnalyticsFilters` in shared/analytics-types.ts), so status
  * classes, max latency, stream and service tier are refined on the client over loaded rows.
  */
 export type StatusFilter = 'all' | 'success' | 'failed' | '4xx' | '5xx' | '429' | '499';

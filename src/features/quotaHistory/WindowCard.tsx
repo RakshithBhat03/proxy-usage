@@ -70,7 +70,7 @@ export function estimateGroup(group: WindowGroup, usage: Record<string, WindowUs
   const { current, previous } = group;
   if (!current) return null;
   const cur = usage[current.uid];
-  // CPAMP gating: only usage counted up to the quota reading may be scaled by its percentage.
+  // Only usage counted up to the quota reading may be scaled by its percentage.
   const atReading =
     usageAtReading[current.uid] ??
     (cur && cur.lastSeenMs !== null && current.lastObservedAtMs !== null && cur.lastSeenMs <= current.lastObservedAtMs ? cur : undefined);
@@ -322,7 +322,6 @@ export function WindowCard({ group, estimate, scope, usage, now, usageLoading, o
           : previous?.lastObservedAtMs != null
             ? `last reading ${formatStamp(previous.lastObservedAtMs)}`
             : 'no reading yet'}
-        {current?.boundary === 'exact' ? ' · exact cycle' : ''}
         {current ? ` · ${current.points.length} reading${current.points.length === 1 ? '' : 's'} this window` : ''}
       </footer>
     </article>

@@ -4,7 +4,7 @@ import { readStoredLive } from '@/lib/quota/live';
 import { asRecord, HOUR_MS, isRecord, MINUTE_MS, normalizeNumberValue, normalizeStringValue, parseIsoToMs, parseUnixToMs } from '@/lib/quota/parse';
 import { CLAUDE_WINDOW_LABELS } from '@/lib/quota/providers/claude';
 import type { AuthFile } from '@/lib/api/authFiles';
-import type { CycleBoundary, HistoryCredential, QuotaObservation, WindowKind } from './types';
+import type { HistoryCredential, QuotaObservation, WindowKind } from './types';
 
 export const FIVE_HOUR_MS = 5 * HOUR_MS;
 export const WEEK_MS = 7 * 24 * HOUR_MS;
@@ -45,13 +45,6 @@ function windowIdFromMinutes(minutes: number): string {
   return minutes % 60 === 0 ? `${minutes / 60}h` : `${minutes}m`;
 }
 
-/** Snapshot ids differ from the Quota page ids in a few places (see quota.md §7). */
-function normalizeSnapshotWindowId(provider: string, rawId: string): string {
-  if (rawId === 'weekly-scoped-fable') return 'seven-day-fable';
-  if (provider === 'claude' && rawId === 'weekly') return 'seven-day';
-  return rawId;
-}
-
 /* ---------- credentials ---------- */
 
 export function historyCredentials(files: readonly AuthFile[]): HistoryCredential[] {
@@ -72,9 +65,9 @@ export function historyCredentials(files: readonly AuthFile[]): HistoryCredentia
 }
 
 /**
- * Identity fields the Manager uses to find a credential's events (same set CPAMP sends,
- * accountHistoryRows.ts:51-92). Codex needs the member email and ChatGPT account id, otherwise
- * the account rollups do not match.
+ * Identity fields the server uses to find a credential's events (matching semantics follow
+ * CPA Manager Plus, MIT). Codex needs the member email and ChatGPT account id, otherwise the
+ * account rollups do not match.
  */
 export function credentialTarget(cred: HistoryCredential) {
   const target: Record<string, string> = {
@@ -231,80 +224,6 @@ export function observationsFromStoredLive(cred: HistoryCredential): QuotaObserv
     });
   }
   return out;
-}
-
-/* ---------- Manager quota snapshots ---------- */
-
-export interface SnapshotCycle {
-  state?: string;
-  scheduled_start_ms?: number | null;
-  scheduled_end_ms?: number | null;
-  actual_start_ms?: number | null;
-  actual_end_ms?: number | null;
-  duration_seconds?: number | null;
-  boundary_accuracy?: string;
-  end_reason?: string;
-}
-
-export interface SnapshotWindowRaw {
-  provider_window_id?: string;
-  window_kind?: string;
-  observed_at_ms?: number;
-  cycle_start_ms?: number | null;
-  cycle_end_ms?: number | null;
-  duration_seconds?: number | null;
-  used_percent?: number | null;
-  remaining_percent?: number | null;
-  stale?: boolean;
-  availability?: string;
-  current_cycle?: SnapshotCycle | null;
-  previous_cycle?: SnapshotCycle | null;
-}
-
-export interface SnapshotItemRaw {
-  row_key?: string;
-  provider?: string;
-  windows?: SnapshotWindowRaw[];
-}
-
-const isReliable = (accuracy: unknown) => accuracy === 'exact' || accuracy === 'derived';
-
-function cycleBoundary(windowId: string, durationMs: number | null, cycle: SnapshotCycle | null | undefined): CycleBoundary | null {
-  if (!cycle || !isReliable(cycle.boundary_accuracy)) return null;
-  const start = normalizeNumberValue(cycle.actual_start_ms) ?? normalizeNumberValue(cycle.scheduled_start_ms);
-  const end = normalizeNumberValue(cycle.actual_end_ms) ?? normalizeNumberValue(cycle.scheduled_end_ms);
-  if (start === null || end === null || end <= start) return null;
-  return {
-    windowId,
-    durationMs: normalizeNumberValue(cycle.duration_seconds) !== null ? (normalizeNumberValue(cycle.duration_seconds) as number) * 1000 : durationMs,
-    startMs: start,
-    endMs: end,
-    state: cycle.state === 'active' && cycle.actual_end_ms == null ? 'active' : 'closed',
-    endReason: cycle.end_reason || undefined,
-  };
-}
-
-export function fromSnapshotItem(provider: string, item: SnapshotItemRaw): { observations: QuotaObservation[]; cycles: CycleBoundary[] } {
-  const observations: QuotaObservation[] = [];
-  const cycles: CycleBoundary[] = [];
-  for (const raw of item.windows ?? []) {
-    const rawId = normalizeStringValue(raw.provider_window_id);
-    if (!rawId) continue;
-    const windowId = normalizeSnapshotWindowId(provider, rawId);
-    const seconds = normalizeNumberValue(raw.duration_seconds);
-    const durationMs = seconds !== null && seconds > 0 ? seconds * 1000 : null;
-    for (const cycle of [raw.current_cycle, raw.previous_cycle]) {
-      const boundary = cycleBoundary(windowId, durationMs, cycle);
-      if (boundary) cycles.push(boundary);
-    }
-    const used = normalizeNumberValue(raw.used_percent) ?? (normalizeNumberValue(raw.remaining_percent) !== null ? 100 - (normalizeNumberValue(raw.remaining_percent) as number) : null);
-    const observedAt = normalizeNumberValue(raw.observed_at_ms);
-    const resetAt = normalizeNumberValue(raw.current_cycle?.scheduled_end_ms) ?? normalizeNumberValue(raw.cycle_end_ms);
-    if (used === null || observedAt === null || resetAt === null || resetAt <= observedAt) continue;
-    if (raw.availability && raw.availability !== 'active') continue;
-    observations.push({ windowId, durationMs, resetAtMs: resetAt, usedPercent: used, observedAtMs: observedAt, source: 'snapshot' });
-  }
-  return { observations, cycles };
 }
 
 /* ---------- per-request response headers (analytics events) ---------- */

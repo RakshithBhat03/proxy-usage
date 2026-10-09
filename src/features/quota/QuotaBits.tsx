@@ -55,7 +55,6 @@ export function PlanBadge({ plan }: { plan: PlanInfo }) {
 const SOURCE_LABEL: Record<AccountQuota['source'], string> = {
   live: 'updated',
   signals: 'from traffic',
-  snapshot: 'cached',
 };
 
 /** "updated 3 min ago" / "from traffic · 12 min ago": cached numbers are never presented as live. */

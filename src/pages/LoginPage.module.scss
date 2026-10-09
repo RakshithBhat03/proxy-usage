@@ -157,6 +157,7 @@
 
 // 标题
 .title {
+  margin: 0;
   font-size: 22px;
   font-weight: 800;
   color: var(--text-primary);
@@ -195,9 +196,46 @@
     word-break: break-all;
   }
 
+  .valueMuted {
+    font-weight: 600;
+    color: var(--text-tertiary);
+  }
+
   .hint {
     color: var(--text-secondary);
     font-size: 12px;
+  }
+
+  .statusRow {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    color: var(--text-secondary);
+    font-size: 12px;
+  }
+
+  .statusDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: var(--text-tertiary);
+  }
+
+  .statusDotOk {
+    background: var(--success-color);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--success-color) 18%, transparent);
+  }
+
+  .statusDotDown {
+    background: var(--danger-color);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger-color) 18%, transparent);
+  }
+
+  .version {
+    margin-left: auto;
+    font-family: $font-mono;
+    color: var(--text-tertiary);
   }
 }
 
@@ -222,6 +260,13 @@
   padding: $spacing-sm $spacing-md;
   color: $error-color;
   font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.errorHint {
+  margin-top: $spacing-xs;
+  color: var(--text-secondary);
+  font-size: 12.5px;
 }
 
 // ========== 启动动画（右侧） ==========

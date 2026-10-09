@@ -10,7 +10,7 @@ export type QuotaProvider = 'claude' | 'antigravity' | 'codex' | 'xai' | 'kimi' 
 /** Tab and grouping order, matching CPAMC's QUOTA_TAB_ORDER. */
 export const QUOTA_PROVIDERS: readonly QuotaProvider[] = ['claude', 'antigravity', 'codex', 'xai', 'kimi', 'devin', 'meta'];
 
-export type QuotaSource = 'live' | 'snapshot' | 'signals';
+export type QuotaSource = 'live' | 'signals';
 
 /** Auth-file entry as returned by `/v0/management/auth-files`; extra keys are read defensively. */
 export type AuthFileItem = AuthFile;

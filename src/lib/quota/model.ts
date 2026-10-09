@@ -26,35 +26,6 @@ export function minRemaining(quota: AccountQuota | null | undefined): number | n
   return min;
 }
 
-/**
- * Merges cached sources: for each window id the newer observation wins (signals vs snapshot).
- * Non-window facts (plan, Codex extras) come from whichever candidate has them.
- */
-export function mergeCachedQuota(...candidates: Array<AccountQuota | null | undefined>): AccountQuota | null {
-  const present = candidates.filter((c): c is AccountQuota => Boolean(c));
-  if (present.length === 0) return null;
-  if (present.length === 1) return present[0];
-  const byId = new Map<string, QuotaWindow>();
-  const order: string[] = [];
-  let newestSource = present[0];
-  for (const candidate of present) {
-    if ((candidate.observedAtMs ?? 0) > (newestSource.observedAtMs ?? 0)) newestSource = candidate;
-    for (const window of candidate.windows) {
-      const existing = byId.get(window.id);
-      if (!existing) order.push(window.id);
-      if (!existing || (window.observedAtMs ?? 0) > (existing.observedAtMs ?? 0)) byId.set(window.id, window);
-    }
-  }
-  const base = present.find((c) => c.codex || c.plan) ?? present[0];
-  return {
-    ...base,
-    windows: order.map((id) => byId.get(id) as QuotaWindow),
-    plan: present.find((c) => c.plan)?.plan ?? null,
-    source: newestSource.source,
-    observedAtMs: Math.max(...present.map((c) => c.observedAtMs ?? 0)) || null,
-  };
-}
-
 /** Live answers replace cached ones wholesale; Codex keeps id_token facts the live call lacks. */
 export function resolveDisplayQuota(live: AccountQuota | null, cached: AccountQuota | null): AccountQuota | null {
   if (!live) return cached;

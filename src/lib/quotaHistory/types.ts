@@ -2,14 +2,14 @@ import type { AuthFile } from '@/lib/api/authFiles';
 
 /**
  * Credential quota history. Quota windows are reconstructed from every place a "used % + reset
- * time" pair was ever recorded (traffic headers, Manager snapshots, the Quota page's live reads,
+ * time" pair was ever recorded (traffic headers, auth-file signals, the Quota page's live reads,
  * and this browser's own log), then joined with per-window request/token/cost totals.
  */
 
 export type WindowKind = 'five-hour' | 'weekly' | 'other';
 
 /** Where a quota reading came from; ordered roughly by how much history each one holds. */
-export type ObservationSource = 'headers' | 'snapshot' | 'signals' | 'live' | 'log';
+export type ObservationSource = 'headers' | 'signals' | 'live' | 'log';
 
 /** One reading of one quota window: at `observedAtMs` it was `usedPercent` used and reset at `resetAtMs`. */
 export interface QuotaObservation {
@@ -22,18 +22,8 @@ export interface QuotaObservation {
   source: ObservationSource;
 }
 
-/** Exact cycle boundaries the Manager Server tracked (`current_cycle` / `previous_cycle`). */
-export interface CycleBoundary {
-  windowId: string;
-  label?: string;
-  durationMs: number | null;
-  startMs: number;
-  endMs: number;
-  state: 'active' | 'closed';
-  endReason?: string;
-}
-
-export type BoundaryBasis = 'exact' | 'observed' | 'schedule';
+/** How a window's start was found: from its observed reset and duration, or the fixed weekly schedule. */
+export type BoundaryBasis = 'observed' | 'schedule';
 
 export interface UsagePoint {
   t: number;

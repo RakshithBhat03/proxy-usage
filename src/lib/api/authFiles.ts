@@ -2,9 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from './client';
 
 /**
- * CPA auth files (credentials), read through the Manager's `/v0/management/*` proxy. Used to turn
- * auth indexes into names/emails/providers. The full shape (quota signals etc.) is documented in
- * docs/research/quota.md; only the commonly needed fields are typed here.
+ * CPA auth files (credentials), read from CLIProxyAPI through this app's server. Used to turn
+ * auth indexes into names/emails/providers. Only the commonly needed fields are typed here; the
+ * rest (quota signals etc.) is read defensively.
  */
 export interface AuthFile {
   id?: string;
