@@ -1,0 +1,327 @@
+@use '../../styles/mixins' as *;
+
+.root {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+%pill-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+}
+
+%pill-button {
+  padding: 4px 11px;
+  font: inherit;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    color var(--dur-hover) var(--ease-out-strong),
+    background-color var(--dur-hover) var(--ease-out-strong),
+    border-color var(--dur-hover) var(--ease-out-strong);
+
+  &:hover:not(:disabled) {
+    color: var(--text-primary);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  &[aria-pressed='true'] {
+    background: var(--floating-surface, var(--bg-primary));
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 1px;
+  }
+}
+
+.quick {
+  @extend %pill-group;
+  position: relative;
+
+  button {
+    @extend %pill-button;
+    position: relative;
+    z-index: 1;
+    font-family: $font-mono;
+    font-size: 12px;
+
+    /* The sliding thumb paints the active state; the button itself stays transparent. */
+    &[aria-pressed='true'] {
+      background: transparent;
+      border-color: transparent;
+    }
+  }
+}
+
+.thumb {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 0;
+  border-radius: 999px;
+  background: var(--floating-surface, var(--bg-primary));
+  border: 1px solid var(--border-hover);
+  transition:
+    transform 0.32s var(--ease-out-strong),
+    width 0.32s var(--ease-out-strong);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thumb {
+    transition: none;
+  }
+}
+
+.stepper {
+  @extend %pill-group;
+}
+
+.stepButton {
+  @extend %pill-button;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 7px;
+}
+
+.trigger {
+  @extend %pill-button;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--floating-surface, var(--bg-primary));
+  border-color: var(--border-color);
+  color: var(--text-primary);
+  font-weight: 550;
+}
+
+.triggerLabel {
+  font-variant-numeric: tabular-nums;
+}
+
+.caret,
+.caretOpen {
+  color: var(--text-tertiary);
+  transition: transform var(--dur-hover) var(--ease-out-strong);
+}
+
+.caretOpen {
+  transform: rotate(180deg);
+}
+
+.bucket {
+  @extend %pill-group;
+  gap: 6px;
+  padding: 3px 4px 3px 11px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+
+  select {
+    appearance: none;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    padding: 4px 26px 4px 11px;
+    font: inherit;
+    font-size: 12.5px;
+    color: var(--text-primary);
+    cursor: pointer;
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239c958d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+        no-repeat right 9px center,
+      var(--floating-surface, var(--bg-primary));
+
+    &:focus-visible {
+      outline: 2px solid var(--primary-color);
+      outline-offset: 1px;
+    }
+  }
+}
+
+.bucketLabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  /* Fine-tuned in JS so the popover never spills past the clipping container. */
+  left: 0;
+  z-index: 50;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 240px;
+  gap: 0;
+  width: min(640px, calc(100vw - 32px));
+  border-radius: 14px;
+  border: 1px solid var(--border-color);
+  background: var(--floating-surface);
+  box-shadow: var(--floating-shadow);
+  overflow: hidden;
+  animation: popover-in 0.18s var(--ease-out-strong) both;
+  transform-origin: top left;
+}
+
+@keyframes popover-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+}
+
+.presets {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  max-height: min(560px, calc(100dvh - 220px));
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.groupLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--text-primary) 42%, transparent);
+}
+
+.groupItems {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+
+  button {
+    @extend %pill-button;
+    border-color: color-mix(in srgb, var(--border-color) 70%, transparent);
+  }
+}
+
+.custom {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-left: 1px solid var(--border-color);
+  background: color-mix(in srgb, var(--bg-tertiary) 35%, transparent);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11.5px;
+  color: var(--text-tertiary);
+
+  input {
+    height: 34px;
+    padding: 0 10px;
+    border-radius: 9px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font: inherit;
+    font-family: $font-mono;
+    font-size: 12px;
+    color-scheme: light dark;
+
+    &:focus {
+      outline: 2px solid var(--primary-color);
+      outline-offset: 1px;
+      border-color: var(--border-hover);
+    }
+  }
+}
+
+.spanChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+
+  button {
+    @extend %pill-button;
+    font-family: $font-mono;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-color: color-mix(in srgb, var(--border-color) 70%, transparent);
+  }
+}
+
+.apply {
+  border: 0;
+  cursor: pointer;
+  background: var(--text-primary);
+  color: var(--bg-secondary);
+  border-radius: $radius-full;
+  padding: 9px 14px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  transition: transform var(--dur-press) var(--ease-out-strong);
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.span {
+  font-family: $font-mono;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  text-align: center;
+}
+
+.error {
+  font-size: 11.5px;
+  color: var(--viz-failure);
+}
+
+@include mobile {
+  .popover {
+    position: fixed;
+    left: 16px;
+    right: 16px;
+    top: calc(var(--header-height, 74px) + 8px);
+    width: auto;
+    grid-template-columns: 1fr;
+  }
+
+  .custom {
+    border-left: 0;
+    border-top: 1px solid var(--border-color);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .popover {
+    animation: none;
+  }
+}
