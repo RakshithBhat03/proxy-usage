@@ -1,0 +1,356 @@
+@use '../../styles/mixins' as *;
+
+// Fixed lane column so every row's bars start at the same x: the chart exists to compare ends.
+$lane-width: 210px;
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px 16px;
+  flex-wrap: wrap;
+}
+
+.title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 650;
+  color: var(--text-primary);
+}
+
+.range {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--text-quaternary);
+  font-variant-numeric: tabular-nums;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chart {
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-primary);
+  overflow: hidden;
+}
+
+.scroller {
+  min-width: 0;
+}
+
+.empty {
+  min-height: 96px;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  color: var(--text-quaternary);
+  font-size: 12px;
+  text-align: center;
+}
+
+.axis,
+.lane {
+  display: grid;
+  grid-template-columns: $lane-width 1fr;
+}
+
+.axisLabel {
+  display: flex;
+  align-items: flex-end;
+  padding: 8px 12px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-quaternary);
+}
+
+.axisCells {
+  display: flex;
+}
+
+.axisCell {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 6px 2px;
+  border-left: 1px solid var(--border-color);
+
+  &[data-weekend='1'] {
+    background: color-mix(in srgb, var(--text-primary) 1.6%, transparent);
+  }
+
+  // Today is the reference point for reading the whole chart.
+  &[data-today='1'] {
+    background: color-mix(in srgb, var(--text-primary) 4%, transparent);
+  }
+}
+
+.axisWeekday {
+  min-height: 12px;
+  font-size: 10px;
+  color: var(--text-quaternary);
+}
+
+.axisDate {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.lane {
+  border-top: 1px solid var(--border-color);
+  transition: background-color var(--dur-hover, 200ms) var(--ease-out-strong, ease-out);
+
+  &:hover {
+    background: color-mix(in srgb, var(--text-primary) 1.5%, transparent);
+  }
+}
+
+.laneHead {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 9px 12px;
+  min-width: 0;
+}
+
+.laneTop {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.laneDot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--provider-accent, var(--text-quaternary));
+}
+
+.laneName {
+  font-family: $font-mono;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  @include text-ellipsis;
+}
+
+.lanePeriod {
+  flex: none;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--count-badge-text, var(--text-secondary));
+  background: var(--count-badge-bg, var(--bg-tertiary));
+}
+
+.laneLimits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.laneLimit {
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 10.5px;
+  color: var(--text-quaternary);
+  background: var(--bg-tertiary);
+
+  b {
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.track {
+  position: relative;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+}
+
+.trackGrid {
+  position: absolute;
+  inset: 0;
+  display: flex;
+
+  > span {
+    flex: 1 1 0;
+    border-left: 1px solid var(--border-color);
+
+    &[data-weekend='1'] {
+      background: color-mix(in srgb, var(--text-primary) 1.6%, transparent);
+    }
+  }
+}
+
+.nowLine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 1;
+  width: 1px;
+  background: var(--text-tertiary);
+  opacity: 0.8;
+}
+
+.window {
+  position: absolute;
+  z-index: 2;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  font-size: 10.5px;
+  white-space: nowrap;
+}
+
+.windowLive {
+  background: color-mix(in srgb, var(--provider-accent) 26%, transparent);
+  border: 1px solid color-mix(in srgb, var(--provider-accent) 45%, transparent);
+  color: var(--text-primary);
+}
+
+.windowNext {
+  background: transparent;
+  border: 1px dashed color-mix(in srgb, var(--provider-accent) 32%, transparent);
+  color: var(--text-quaternary);
+}
+
+.windowPast {
+  background: color-mix(in srgb, var(--provider-accent) 8%, transparent);
+  border: 1px solid transparent;
+  color: var(--text-quaternary);
+}
+
+.windowFill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: color-mix(in srgb, var(--provider-accent) 34%, transparent);
+  pointer-events: none;
+}
+
+.windowLabel {
+  position: relative;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: $font-mono;
+  font-variant-numeric: tabular-nums;
+}
+
+// Reset credits are use-it-or-lose-it: a narrow amber tick over the bars.
+.creditTick {
+  position: absolute;
+  z-index: 3;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: var(--amber-color);
+  box-shadow: 0 0 0 1px var(--bg-primary);
+  cursor: help;
+  transition: width var(--dur-hover, 200ms) var(--ease-out-strong, ease-out);
+
+  &:hover {
+    width: 4px;
+  }
+}
+
+.laneIdle {
+  position: relative;
+  z-index: 2;
+  padding-left: 10px;
+  font-size: 11px;
+  color: var(--text-quaternary);
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  font-size: 11px;
+  color: var(--text-quaternary);
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.swatch {
+  width: 22px;
+  height: 10px;
+  border-radius: 999px;
+}
+
+.swatchLive {
+  background: color-mix(in srgb, var(--text-tertiary) 34%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text-tertiary) 50%, transparent);
+}
+
+.swatchNext {
+  border: 1px dashed color-mix(in srgb, var(--text-tertiary) 45%, transparent);
+}
+
+.swatchPast {
+  background: color-mix(in srgb, var(--text-tertiary) 12%, transparent);
+}
+
+.swatchCredit {
+  width: 2px;
+  height: 14px;
+  border-radius: 999px;
+  background: var(--amber-color);
+}
+
+.legendNote {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
+@include mobile {
+  // Names become unreadable before the lane column can shrink, so the chart scrolls instead.
+  .chart {
+    overflow-x: auto;
+  }
+
+  .scroller {
+    min-width: 720px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lane,
+  .creditTick {
+    transition: none;
+  }
+}

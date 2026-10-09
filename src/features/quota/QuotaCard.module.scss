@@ -1,0 +1,409 @@
+@use '../../styles/mixins' as *;
+
+/* Quota card — CPAMC recipe: 14px radius, hairline border, 82% paper, mono telemetry. */
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  min-width: 0;
+  padding: 15px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border-color);
+  background: color-mix(in srgb, var(--bg-primary) 82%, transparent);
+  transition:
+    border-color var(--dur-hover, 200ms) var(--ease-out-strong, ease-out),
+    box-shadow var(--dur-hover, 200ms) var(--ease-out-strong, ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .card:hover {
+    border-color: var(--border-hover);
+    box-shadow: 0 12px 26px -14px rgb(0 0 0 / 0.16);
+  }
+}
+
+.cardDisabled {
+  opacity: 0.62;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.iconWrap {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg-tertiary) 60%, transparent);
+}
+
+.fileName {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: $font-mono;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--text-primary);
+  @include text-ellipsis;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+/* ---------- idle ---------- */
+
+.idleBody {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 76px;
+  padding: 12px 10px;
+  cursor: pointer;
+  border: 1px dashed var(--border-color);
+  border-radius: 10px;
+  background: none;
+  color: var(--text-tertiary);
+  transition:
+    transform var(--dur-press, 160ms) var(--ease-out-strong, ease-out),
+    border-color var(--dur-hover, 200ms) var(--ease-out-strong, ease-out),
+    color var(--dur-hover, 200ms) var(--ease-out-strong, ease-out);
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .idleBody:hover:not(:disabled) {
+    border-color: color-mix(in srgb, var(--primary-color) 35%, var(--border-color));
+    border-style: solid;
+    color: var(--text-secondary);
+  }
+}
+
+.idleGlyph {
+  opacity: 0.8;
+}
+
+.idleHint {
+  font-family: $font-mono;
+  font-size: 11.5px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* ---------- loading ---------- */
+
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  padding: 4px 0 2px;
+}
+
+.skeletonRow {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.skeletonLabel,
+.skeletonTrack {
+  display: block;
+  border-radius: $radius-full;
+  background-color: color-mix(in srgb, var(--text-primary) 8%, transparent);
+  background-image: linear-gradient(90deg, transparent 20%, color-mix(in srgb, var(--text-primary) 6%, transparent) 50%, transparent 80%);
+  background-repeat: no-repeat;
+  background-size: 220% 100%;
+  animation: quota-skeleton-sweep 1.2s linear infinite;
+}
+
+@keyframes quota-skeleton-sweep {
+  from {
+    background-position: -110% 0;
+  }
+  to {
+    background-position: 210% 0;
+  }
+}
+
+.skeletonLabel {
+  width: 40%;
+  height: 10px;
+}
+
+.skeletonTrack {
+  width: 100%;
+  height: 6px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- error / warning ---------- */
+
+.errorStrip {
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--viz-failure);
+  background: color-mix(in srgb, var(--viz-failure) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--viz-failure) 32%, transparent);
+  border-radius: 9px;
+  padding: 8px 10px;
+  overflow-wrap: anywhere;
+}
+
+.warnStrip {
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--warning-text);
+  background: var(--warning-bg);
+  border: 1px solid var(--warning-border);
+  border-radius: 8px;
+  padding: 5px 9px;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- facts (plan / renewal / credits) ---------- */
+
+.facts {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.factItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+  flex-wrap: wrap;
+}
+
+.factLabel {
+  color: var(--text-tertiary);
+}
+
+.factValue {
+  display: inline-flex;
+  align-items: baseline;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+
+  :global(span) {
+    font-weight: inherit;
+  }
+}
+
+/* ---------- expiry lists ---------- */
+
+.expiryList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 2px;
+}
+
+.expiryTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.expiryRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 1px solid color-mix(in srgb, var(--border-color) 72%, transparent);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--bg-secondary) 72%, transparent);
+  font-size: 12px;
+  min-width: 0;
+}
+
+.expiryRowSoon {
+  border-color: var(--warning-border);
+  background: var(--warning-bg);
+}
+
+.expiryLabel {
+  min-width: 0;
+  color: var(--text-tertiary);
+  overflow-wrap: anywhere;
+}
+
+.expiryTime {
+  font-family: $font-mono;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.message {
+  font-family: $font-mono;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--text-tertiary);
+  text-align: center;
+  padding: 6px 4px;
+}
+
+/* ---------- windows ---------- */
+
+.windowBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.groupTitle {
+  margin-top: 3px;
+  font-family: $font-mono;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.windowRow {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.windowHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.windowLabel {
+  min-width: 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  @include text-ellipsis;
+}
+
+.windowMeta {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+  flex-shrink: 0;
+  font-family: $font-mono;
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+
+.windowPercent {
+  font-weight: 650;
+  color: var(--text-primary);
+}
+
+.windowAmount {
+  color: var(--text-tertiary);
+}
+
+.windowStale {
+  color: var(--text-quaternary);
+  font-style: italic;
+}
+
+/* ---------- footer ---------- */
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: auto;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+@include mobile {
+  .windowHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .windowLabel {
+    white-space: normal;
+    overflow: visible;
+  }
+
+  .windowMeta {
+    flex-wrap: wrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .idleBody {
+    transition: none;
+  }
+
+  .skeletonLabel,
+  .skeletonTrack {
+    animation: none;
+  }
+}

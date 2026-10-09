@@ -1,0 +1,170 @@
+@use '../../styles/mixins' as *;
+
+.page {
+  min-width: 0;
+}
+
+.workbench {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+/* Tabs own the row; the view select sits at its right end like the fork's ledger header. */
+.tabsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+
+  > :first-child {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
+.viewSelect {
+  flex: 0 0 auto;
+  min-width: 132px;
+}
+
+.toolbar {
+  min-width: 0;
+}
+
+.sort {
+  flex: 0 0 auto;
+  min-width: 168px;
+  max-width: 100%;
+}
+
+/* Quiet selects (CPAMC sort): borderless until focused or open. */
+.viewSelect,
+.sort {
+  button[aria-haspopup='listbox'] {
+    height: 36px;
+    border-color: transparent;
+    border-radius: 10px;
+    background: transparent;
+    box-shadow: none;
+    color: var(--text-secondary);
+
+    &:focus-visible,
+    &[aria-expanded='true'] {
+      outline: 2px solid var(--primary-color);
+      outline-offset: 2px;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .viewSelect button[aria-haspopup='listbox']:hover,
+  .sort button[aria-haspopup='listbox']:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+  }
+}
+
+.metaToggle {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-decoration-color: var(--border-hover);
+  text-underline-offset: 3px;
+
+  &:hover {
+    color: var(--text-primary);
+  }
+
+  &[aria-pressed='true'] {
+    color: var(--text-secondary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+}
+
+.grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+  align-items: stretch;
+}
+
+.skeletonStack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ---------- reset confirmation ---------- */
+
+.confirmBody {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+
+  p {
+    margin: 0;
+  }
+}
+
+.confirmName {
+  font-family: $font-mono;
+  font-size: 12.5px;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.confirmList {
+  margin: 0;
+  padding: 10px 12px 10px 28px;
+  border-radius: 10px;
+  border: 1px solid var(--warning-border);
+  background: var(--warning-bg);
+  font-size: 12.5px;
+  color: var(--text-secondary);
+
+  li + li {
+    margin-top: 4px;
+  }
+
+  b {
+    font-family: $font-mono;
+    color: var(--text-primary);
+  }
+}
+
+@include mobile {
+  .page {
+    gap: 16px;
+  }
+
+  .tabsRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .viewSelect {
+    align-self: flex-end;
+  }
+
+  .search {
+    flex: 1 1 220px;
+    height: 40px;
+  }
+}

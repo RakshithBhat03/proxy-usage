@@ -1,0 +1,551 @@
+@use '../../styles/mixins' as *;
+
+.ledger {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-width: 0;
+}
+
+.muted {
+  color: var(--text-quaternary);
+}
+
+/* ---------- summary strip ---------- */
+
+.strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--bg-primary) 82%, transparent);
+  overflow: hidden;
+}
+
+.cell {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.strip > .cell {
+  gap: 7px;
+  padding: 15px 18px 14px;
+  /* Hairline dividers that survive wrapping: every cell paints its own left and top edge. */
+  box-shadow:
+    -1px 0 0 var(--border-color),
+    0 -1px 0 var(--border-color);
+}
+
+.cellTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.cellName {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--text-primary);
+}
+
+.cellCount {
+  font-family: $font-mono;
+  font-size: 11px;
+  color: var(--text-quaternary);
+  white-space: nowrap;
+}
+
+/* One window total inside a summary cell (primary, or an expanded secondary). */
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+
+.expandedBlocks {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 10px;
+  animation: ledger-expand 0.32s var(--ease-out-strong, ease-out) both;
+}
+
+@keyframes ledger-expand {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -4px, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .expandedBlocks {
+    animation: none;
+  }
+}
+
+.cellLabel {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  @include text-ellipsis;
+}
+
+.cellFigure {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 2px 7px;
+  font-family: $font-mono;
+  font-variant-numeric: tabular-nums;
+}
+
+.cellBig {
+  font-size: 26px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--text-primary);
+}
+
+.cellOf {
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+}
+
+.cellUnknown {
+  font-size: 11px;
+  color: var(--text-quaternary);
+}
+
+.segments {
+  display: flex;
+  gap: 6px;
+  margin: 3px 0 1px;
+}
+
+.segment {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  height: 4px;
+  border-radius: $radius-full;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--text-primary) 8%, transparent);
+}
+
+.segmentFill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  transform-origin: left center;
+  transition: width 360ms var(--ease-out-strong, ease);
+  animation: ledger-fill 480ms var(--ease-out-strong, ease-out) both;
+  animation-delay: calc(var(--meter-index, 0) * 40ms);
+}
+
+@keyframes ledger-fill {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+.level_high {
+  background: var(--viz-success);
+}
+.level_medium {
+  background: var(--quota-medium-color);
+}
+.level_low {
+  background: var(--viz-failure);
+}
+.level_unknown {
+  background: transparent;
+}
+
+.cellReset {
+  font-size: 11.5px;
+
+  :global(span) {
+    font-family: $font-mono;
+  }
+}
+
+.cellSecondary {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+  padding-top: 9px;
+  border-top: 1px solid color-mix(in srgb, var(--border-color) 80%, transparent);
+}
+
+.secondaryRow {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  font-size: 12px;
+}
+
+.secondaryLabel {
+  min-width: 0;
+  color: var(--text-tertiary);
+  @include text-ellipsis;
+}
+
+.secondaryValue {
+  font-family: $font-mono;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+.textToggle {
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--text-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+/* ---------- provider sections ---------- */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.sectionTitle {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 650;
+  color: var(--text-primary);
+}
+
+.sectionCount {
+  font-family: $font-mono;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-quaternary);
+}
+
+.rows {
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--bg-primary) 82%, transparent);
+  overflow: hidden;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(190px, 300px) repeat(var(--ledger-cols, 3), minmax(130px, 1fr)) minmax(150px, auto);
+  align-items: center;
+  gap: 12px 26px;
+  padding: 14px 18px;
+  transition: background-color var(--dur-hover, 200ms) var(--ease-out-strong, ease-out);
+
+  & + & {
+    border-top: 1px solid color-mix(in srgb, var(--border-color) 80%, transparent);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .row:hover {
+    background: color-mix(in srgb, var(--bg-tertiary) 35%, transparent);
+  }
+}
+
+.rowDisabled {
+  opacity: 0.6;
+}
+
+.identity {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.rowName {
+  font-family: $font-mono;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  @include text-ellipsis;
+}
+
+.rowSub {
+  font-size: 11.5px;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+  @include text-ellipsis;
+}
+
+.rowWarn {
+  color: var(--warning-text);
+}
+
+.cellHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.cellTitle {
+  min-width: 0;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  @include text-ellipsis;
+}
+
+.cellPercent {
+  font-family: $font-mono;
+  font-size: 13px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+.cellPercentMuted {
+  font-family: $font-mono;
+  font-size: 13px;
+  color: var(--text-quaternary);
+}
+
+.cellFoot {
+  font-size: 11px;
+  color: var(--text-quaternary);
+  min-width: 0;
+  @include text-ellipsis;
+}
+
+.resetsValue {
+  font-size: 12px;
+  color: var(--text-tertiary);
+
+  b {
+    font-family: $font-mono;
+    font-size: 13px;
+    font-weight: 650;
+    color: var(--text-primary);
+  }
+}
+
+.skelLine,
+.skelBar {
+  display: block;
+  border-radius: $radius-full;
+  background-color: color-mix(in srgb, var(--text-primary) 8%, transparent);
+  background-image: linear-gradient(90deg, transparent 20%, color-mix(in srgb, var(--text-primary) 6%, transparent) 50%, transparent 80%);
+  background-repeat: no-repeat;
+  background-size: 220% 100%;
+  animation: ledger-sweep 1.2s linear infinite;
+}
+
+.skelLine {
+  width: 55%;
+  height: 9px;
+}
+
+.skelBar {
+  width: 100%;
+  height: 4px;
+}
+
+@keyframes ledger-sweep {
+  from {
+    background-position: -110% 0;
+  }
+  to {
+    background-position: 210% 0;
+  }
+}
+
+.rowError,
+.rowIdle {
+  grid-column: span var(--ledger-cols, 3);
+  font-size: 12px;
+  min-width: 0;
+}
+
+.rowError {
+  color: var(--viz-failure);
+  overflow-wrap: anywhere;
+}
+
+.rowIdle {
+  color: var(--text-tertiary);
+  font-family: $font-mono;
+  font-size: 11.5px;
+}
+
+.linkButton {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--text-secondary);
+  text-decoration: underline;
+  text-decoration-color: var(--border-hover);
+  text-underline-offset: 3px;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    color: var(--text-primary);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    text-decoration: none;
+  }
+}
+
+.rowActions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  min-width: 0;
+}
+
+.actionButtons {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+}
+
+.quietButton,
+.moreButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color var(--dur-hover, 200ms) var(--ease-out-strong, ease-out);
+
+  &:hover:not(:disabled) {
+    color: var(--text-primary);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+.moreButton {
+  padding: 1px 7px;
+  border-radius: $radius-full;
+  font-family: $font-mono;
+  font-size: 11px;
+  background: color-mix(in srgb, var(--text-primary) 6%, transparent);
+
+  svg {
+    transition: transform var(--dur-hover, 200ms) var(--ease-out-strong, ease-out);
+  }
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.overflow {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px 26px;
+  padding: 10px 0 2px;
+  border-top: 1px dashed color-mix(in srgb, var(--border-color) 80%, transparent);
+}
+
+@media (max-width: 1280px) {
+  .row {
+    grid-template-columns: minmax(170px, 240px) repeat(var(--ledger-cols, 3), minmax(110px, 1fr));
+  }
+
+  .rowActions {
+    grid-column: 1 / -1;
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+@include mobile {
+  .row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .rowError,
+  .rowIdle {
+    grid-column: auto;
+  }
+
+  .rowActions {
+    grid-column: auto;
+  }
+
+  .strip > .cell {
+    padding: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .segmentFill,
+  .skelLine,
+  .skelBar {
+    animation: none;
+    transition: none;
+  }
+
+  .row,
+  .moreButton svg {
+    transition: none;
+  }
+}

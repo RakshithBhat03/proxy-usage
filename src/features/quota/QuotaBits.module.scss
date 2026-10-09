@@ -1,0 +1,168 @@
+/* Quota meter, reset label, plan badge, source tag — shared by cards, ledger and summary. */
+
+.meter {
+  height: 6px;
+  border-radius: $radius-full;
+  background: color-mix(in srgb, var(--text-primary) 8%, transparent);
+  overflow: hidden;
+}
+
+.meterSm {
+  height: 4px;
+}
+
+.fill {
+  height: 100%;
+  border-radius: $radius-full;
+  /* Refresh glides to the new level; arrival sweeps in once via scaleX so the two never fight. */
+  transition:
+    width 360ms var(--ease-out-strong, ease),
+    background-color var(--dur-hover, 200ms) var(--ease-out-strong, ease);
+  transform-origin: left center;
+  animation: quota-meter-fill 480ms var(--ease-out-strong, ease-out) both;
+  animation-delay: calc(var(--meter-index, 0) * 40ms);
+}
+
+@keyframes quota-meter-fill {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+.fill_high {
+  background: var(--viz-success);
+}
+
+.fill_medium {
+  background: var(--quota-medium-color);
+}
+
+.fill_low {
+  background: var(--viz-failure);
+}
+
+.fill_unknown {
+  background: transparent;
+}
+
+/* ---------- reset label ---------- */
+
+.reset {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0;
+  min-width: 0;
+  font-family: $font-mono;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.absolute {
+  color: var(--text-quaternary);
+}
+
+.relative {
+  color: var(--text-tertiary);
+}
+
+.sep {
+  margin: 0 4px;
+  color: var(--text-quaternary);
+}
+
+.soon {
+  color: var(--warning-text);
+  font-weight: 600;
+}
+
+/* ---------- plan badges ---------- */
+
+.planPlain {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Gold card (Pro 5x, Max, Ultra): CPAMC's recipe without the blurred halo layer. */
+.planPremium {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 8px;
+  border-radius: $radius-full;
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  background:
+    radial-gradient(circle at 18% 24%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.6) 18%, rgba(255, 255, 255, 0) 42%),
+    linear-gradient(135deg, #fff9e3 0%, #ffe07f 52%, #e0aa14 100%);
+  border: 1px solid rgba(217, 165, 22, 0.72);
+  box-shadow:
+    0 1px 3px rgba(133, 92, 0, 0.16),
+    0 0 0 1px rgba(255, 255, 255, 0.22) inset;
+  color: #6b4b00;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+:global([data-theme='dark']) .planPremium {
+  background:
+    radial-gradient(circle at 18% 24%, rgba(255, 229, 138, 0.28) 0%, rgba(255, 214, 98, 0.14) 18%, rgba(255, 214, 98, 0) 44%),
+    linear-gradient(135deg, #4f3d0b 0%, #6e5510 48%, #8f6d10 100%);
+  border-color: rgba(226, 180, 50, 0.7);
+  box-shadow:
+    0 1px 6px rgba(0, 0, 0, 0.28),
+    0 0 0 1px rgba(255, 220, 120, 0.16) inset;
+  color: #fff0a8;
+  text-shadow: none;
+}
+
+/* Platinum (Codex Pro 20x): CPAMC's chrome frozen on its resting frame (no perpetual motion). */
+.planElite {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 9px;
+  border-radius: $radius-full;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.3) 22%, rgba(255, 255, 255, 0) 46%) padding-box,
+    linear-gradient(92deg, transparent 44%, rgba(196, 226, 252, 0.32) 50%, transparent 56%) padding-box,
+    linear-gradient(to bottom, #ffffff 0%, #e3eaf1 26%, #a5b2c2 45%, #78879a 54%, #c3cdd8 78%, #f2f6fa 100%) padding-box,
+    linear-gradient(135deg, #ffffff 0%, rgba(140, 158, 178, 0.6) 42%, rgba(56, 66, 80, 0.95) 100%) border-box;
+  box-shadow:
+    0 1px 3px rgba(30, 42, 58, 0.28),
+    inset 0 1px 1px rgba(255, 255, 255, 0.92),
+    inset 0 -1.5px 2px rgba(60, 74, 92, 0.4);
+  color: #1f2a38;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+:global([data-theme='dark']) .planElite {
+  box-shadow:
+    0 1px 5px rgba(0, 0, 0, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.92),
+    inset 0 -1.5px 2px rgba(74, 90, 110, 0.4);
+}
+
+/* ---------- source tag ---------- */
+
+.source {
+  font-family: $font-mono;
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  color: var(--text-quaternary);
+  white-space: nowrap;
+}
+
+.sourceStale {
+  color: var(--text-tertiary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fill {
+    transition: none;
+    animation: none;
+  }
+}
