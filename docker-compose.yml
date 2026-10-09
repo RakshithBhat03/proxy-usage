@@ -1,5 +1,5 @@
-# Proxy Usage: usage analytics, request monitor, and quota for CLIProxyAPI, reading from
-# CPA Manager Plus (Full Mode).
+# CPA Usage: usage analytics, request monitor, and quota for CLIProxyAPI, with a built-in usage
+# collector that stores request history in ./data.
 #
 #   docker compose up -d --build
 #   open http://127.0.0.1:18320                     (local)
@@ -12,23 +12,36 @@ services:
     image: proxy-usage:local
     container_name: proxy-usage
     restart: unless-stopped
+    stop_grace_period: 15s
     ports:
       # Loopback by default: the tailnet reaches the app through the tailscale sidecar over the
-      # compose network, not this port. Set BIND_ADDR=0.0.0.0 to also expose it on the LAN and
-      # on the Mac's own tailnet IP (http://<mac>.<tailnet>.ts.net:18320).
+      # compose network, not this port. Set BIND_ADDR=0.0.0.0 to also expose it on the LAN.
       - "${BIND_ADDR:-127.0.0.1}:${PORT:-18320}:18320"
     environment:
       PORT: "18320"
       HOST: "0.0.0.0"
-      # The Manager Server listens on the Mac's loopback; host.docker.internal reaches it from the
-      # container (OrbStack / Docker Desktop, and Linux via the host-gateway mapping below).
-      MANAGER_URL: "${MANAGER_URL:-http://host.docker.internal:18317}"
-      # Extra hostnames to accept besides localhost, *.ts.net and *.local (comma separated).
+      DATA_DIR: /data
+      # CLIProxyAPI on the Docker host. host.docker.internal works on Docker Desktop and OrbStack, and
+      # on Linux via the host-gateway mapping below. CLIProxyAPI must allow this connection: set
+      # `management.allow-remote: true` if it rejects the container as non-local.
+      CPA_URL: "${CPA_URL:-http://host.docker.internal:8317}"
+      # Management key used by the collector (the same key you sign in with).
+      CPA_MANAGEMENT_KEY: "${CPA_MANAGEMENT_KEY:-}"
+      CPA_TLS_INSECURE: "${CPA_TLS_INSECURE:-false}"
+      RETENTION_DAYS: "${RETENTION_DAYS:-0}"
+      COLLECTOR_MODE: "${COLLECTOR_MODE:-auto}"
+      AUTO_ENABLE_USAGE_STATISTICS: "${AUTO_ENABLE_USAGE_STATISTICS:-true}"
+      PRICE_SYNC_INTERVAL_HOURS: "${PRICE_SYNC_INTERVAL_HOURS:-24}"
+      LOG_LEVEL: "${LOG_LEVEL:-info}"
+      # Extra hostnames to accept besides localhost, IPs, *.ts.net and *.local (comma separated).
       ALLOWED_HOSTS: "${ALLOWED_HOSTS:-}"
+    volumes:
+      # Usage history (SQLite). Keep it: deleting it deletes your history.
+      - ./data:/data
     extra_hosts:
       - "host.docker.internal:host-gateway"
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:18320/"]
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:18320/healthz"]
       interval: 15s
       timeout: 3s
       retries: 3
@@ -37,6 +50,7 @@ services:
   # (tailnet only, never Funnel) to proxy https://<TS_HOSTNAME>.<tailnet>.ts.net to the app at
   # http://proxy-usage:18320 on the compose network. It has its own network namespace, so the app
   # can be restarted or recreated independently and local access never depends on Tailscale.
+  # Remove this service if you don't use Tailscale.
   tailscale:
     image: tailscale/tailscale:stable
     container_name: proxy-usage-tailscale

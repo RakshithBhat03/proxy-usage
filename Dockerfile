@@ -1,20 +1,25 @@
-# Builds the UI, then serves it with `vite preview` so the same Vite config (Manager proxy,
-# Tailscale allowed hosts) applies in the container and in development.
-FROM node:22-alpine AS deps
+# Builds the UI, then runs the Node server: it serves the built UI, collects CLIProxyAPI usage into
+# SQLite (/data), and answers the analytics API. The server is TypeScript run with Node's built-in
+# type stripping and has no runtime npm dependencies.
+FROM node:24-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
-
-FROM deps AS build
 COPY . .
 RUN npm run build
 
-FROM node:22-alpine
+FROM node:24-alpine
+ENV NODE_ENV=production \
+    HOST=0.0.0.0 \
+    PORT=18320 \
+    DATA_DIR=/data
 WORKDIR /app
-ENV NODE_ENV=production
-COPY package.json package-lock.json ./
-COPY --from=deps /app/node_modules ./node_modules
+COPY package.json ./
+COPY server ./server
+COPY shared ./shared
 COPY --from=build /app/dist ./dist
-COPY vite.config.ts tsconfig.json tsconfig.node.json ./
+RUN mkdir -p /data && chown node:node /data
+USER node
 EXPOSE 18320
-CMD ["npx", "vite", "preview"]
+VOLUME ["/data"]
+CMD ["node", "--disable-warning=ExperimentalWarning", "server/index.ts"]
