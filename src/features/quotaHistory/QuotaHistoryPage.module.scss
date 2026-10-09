@@ -1,0 +1,457 @@
+@use '../../styles/mixins' as *;
+
+.page {
+  gap: 16px;
+  min-width: 0;
+}
+
+.tabsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+
+  > :first-child {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  @include mobile {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.credSelect {
+  flex: 0 0 auto;
+  width: 300px;
+  max-width: 100%;
+
+  @include mobile {
+    width: 100%;
+  }
+}
+
+.summary {
+  @media (min-width: 1100px) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* ---------- Credential section ---------- */
+
+.cred {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  margin-top: 6px;
+}
+
+.credHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.credName {
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.credCount {
+  font-family: $font-mono;
+  font-size: 12px;
+  color: var(--text-quaternary);
+}
+
+.credSub {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 560px), 1fr));
+  gap: 12px;
+  min-width: 0;
+}
+
+/* ---------- Window card (Quota page recipe: 14px radius, hairline, 82% paper) ---------- */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  padding: 16px 18px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border-color);
+  background: color-mix(in srgb, var(--bg-primary) 82%, transparent);
+  transition:
+    border-color var(--dur-hover) var(--ease-out-strong),
+    box-shadow var(--dur-hover) var(--ease-out-strong);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .card:hover {
+    border-color: var(--border-hover);
+    box-shadow: 0 12px 26px -14px rgb(0 0 0 / 0.16);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none;
+  }
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.kindIcon {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 26px;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg-tertiary) 60%, transparent);
+  color: var(--text-secondary);
+}
+
+.cardTitle {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 13.5px;
+  font-weight: 650;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reset {
+  flex: 0 0 auto;
+  font-family: $font-mono;
+  font-size: 11.5px;
+  color: var(--text-quaternary);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+
+  b {
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+}
+
+/* ---------- Hero ---------- */
+
+.hero {
+  min-width: 0;
+}
+
+.heroMain {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.heroFigure {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.heroValue {
+  font-family: $font-mono;
+  font-size: 30px;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.heroUnit {
+  font-family: $font-mono;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+.heroMeta {
+  font-family: $font-mono;
+  font-size: 11px;
+  color: var(--text-quaternary);
+  font-variant-numeric: tabular-nums;
+}
+
+.meterFill {
+  position: relative;
+}
+
+.meterProjected {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: inherit;
+  background: repeating-linear-gradient(-45deg, color-mix(in srgb, currentColor 50%, transparent) 0 2px, transparent 2px 5px);
+}
+
+/* ---------- Stat strip ---------- */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  min-width: 0;
+  border-top: 1px solid color-mix(in srgb, var(--border-color) 70%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 70%, transparent);
+
+  @media (max-width: 640px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  padding: 10px 12px;
+
+  & + & {
+    border-left: 1px solid color-mix(in srgb, var(--border-color) 70%, transparent);
+  }
+
+  &:first-child {
+    padding-left: 0;
+  }
+}
+
+.statLabel {
+  font-size: 11.5px;
+  font-weight: 550;
+  color: var(--text-tertiary);
+}
+
+.statValue {
+  font-family: $font-mono;
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+}
+
+.statHint {
+  font-family: $font-mono;
+  font-size: 10.5px;
+  color: var(--text-quaternary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- All-time high / previous / current / full window ---------- */
+
+.compare {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.compareRow {
+  display: grid;
+  grid-template-columns: minmax(118px, 1.3fr) minmax(92px, 1fr) repeat(4, minmax(62px, 0.85fr));
+  align-items: center;
+  gap: 10px;
+  min-width: 520px;
+  padding: 7px 8px;
+  border-radius: 8px;
+
+  > b {
+    font-family: $font-mono;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: right;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.compareHead {
+  padding-top: 0;
+  padding-bottom: 4px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-quaternary);
+
+  > span:not(:first-child):not(:nth-child(2)) {
+    text-align: right;
+  }
+}
+
+.compareCurrent {
+  background: color-mix(in srgb, var(--text-primary) 4%, transparent);
+}
+
+.compareForecast {
+  > b:not(.muted) {
+    color: var(--text-secondary);
+  }
+}
+
+.rowName {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+
+  small {
+    overflow: hidden;
+    font-family: $font-mono;
+    font-size: 10.5px;
+    font-weight: 500;
+    color: var(--text-quaternary);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.usedCell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+
+  b {
+    font-family: $font-mono;
+    font-size: 12px;
+    font-weight: 650;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.miniBar {
+  position: relative;
+  flex: 0 0 40px;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text-primary) 8%, transparent);
+
+  > span {
+    position: absolute;
+    inset: 0 auto 0 0;
+    border-radius: inherit;
+  }
+}
+
+.muted {
+  color: var(--text-quaternary) !important;
+}
+
+.scopeNote {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--amber-10);
+  border: 1px solid var(--amber-30);
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--amber-text);
+}
+
+.scopeChip {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 8px;
+  padding: 1px 7px;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  color: var(--text-tertiary);
+}
+
+.cardFoot {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px 0;
+  font-family: $font-mono;
+  font-size: 10.5px;
+  color: var(--text-quaternary);
+  font-variant-numeric: tabular-nums;
+}
+
+.hiddenRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--text-quaternary);
+
+  > span {
+    margin-right: 2px;
+  }
+}
+
+.footnote {
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--text-quaternary);
+}
+
+/* ---------- Credentials table row action (Usage page) ---------- */
+
+.rowButton {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin-left: 6px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: none;
+  color: var(--text-quaternary);
+  cursor: pointer;
+  vertical-align: middle;
+  transition:
+    color var(--dur-hover) var(--ease-out-strong),
+    background-color var(--dur-hover) var(--ease-out-strong),
+    border-color var(--dur-hover) var(--ease-out-strong);
+
+  &:hover,
+  &:focus-visible {
+    color: var(--text-primary);
+    border-color: var(--border-color);
+    background: color-mix(in srgb, var(--text-primary) 5%, transparent);
+  }
+}
