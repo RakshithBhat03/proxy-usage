@@ -35,9 +35,13 @@ services:
       LOG_LEVEL: "${LOG_LEVEL:-info}"
       # Extra hostnames to accept besides localhost, IPs, *.ts.net and *.local (comma separated).
       ALLOWED_HOSTS: "${ALLOWED_HOSTS:-}"
+      # UI published with `npm run publish:ui` goes live without a restart; the UI baked into the
+      # image is served until ./web holds one.
+      UI_DIR: /app/web
     volumes:
       # Usage history (SQLite). Keep it: deleting it deletes your history.
       - ./data:/data
+      - ./web:/app/web:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"
     healthcheck:

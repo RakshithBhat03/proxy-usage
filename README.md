@@ -58,7 +58,7 @@ observability:
 
 ```sh
 cp .env.example .env && chmod 600 .env   # set CPA_MANAGEMENT_KEY
-mkdir -p data
+mkdir -p data web
 docker compose up -d --build
 open http://127.0.0.1:18320
 ```
@@ -70,6 +70,18 @@ uses. History starts from the moment the collector first connects.
 The container reaches CLIProxyAPI on the Docker host through `host.docker.internal:8317`. Set
 `CPA_URL` if yours lives elsewhere. On Linux the container runs as uid 1000, so `./data` must be
 writable by that user.
+
+### Updating without interrupting the collector
+
+Restarting the container pauses the collector. Requests that arrive while it is down are only
+recovered if they are still in CLIProxyAPI's usage queue (`redis-usage-queue-retention-seconds`),
+so keep restarts for backend changes:
+
+- **UI changes:** `npm run publish:ui` builds the UI into `./web`, which the container serves
+  (`UI_DIR`). The new UI is live on the next page load and the server keeps running. Until `./web`
+  holds a build, the UI baked into the image is served.
+- **Server changes** (`server/`, `shared/`, dependencies, `Dockerfile`, compose file):
+  `docker compose up -d --build proxy-usage`.
 
 ## Configuration
 
@@ -159,6 +171,7 @@ npm run dev        # one process on :18320: API + collector + Vite with HMR
 npm test           # server and shared unit tests (node:test)
 npm run typecheck
 npm run build      # production UI build into dist/
+npm run publish:ui # build the UI into ./web; the running container serves it without a restart
 npm start          # production server: serves dist/, API and collector
 ```
 

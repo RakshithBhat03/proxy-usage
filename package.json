@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "node --watch-path=server --watch-path=shared --disable-warning=ExperimentalWarning server/index.ts --dev",
     "build": "tsc -b && vite build",
+    "publish:ui": "node scripts/publish-ui.mjs",
     "start": "node --env-file-if-exists=.env --disable-warning=ExperimentalWarning server/index.ts",
     "typecheck": "tsc -b --noEmit",
     "test": "node --test --disable-warning=ExperimentalWarning 'server/**/*.test.ts' 'shared/**/*.test.ts'"

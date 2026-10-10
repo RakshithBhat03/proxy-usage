@@ -1,5 +1,7 @@
 node_modules
 dist
+web
+.ui-build
 *.log
 .env
 .env.*
