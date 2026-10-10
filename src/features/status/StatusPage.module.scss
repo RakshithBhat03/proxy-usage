@@ -1,0 +1,437 @@
+@use '../../styles/mixins' as *;
+
+.page {
+  gap: 16px;
+  min-width: 0;
+}
+
+/* ---------- Health colors (shared by dots, pills, board and row tones) ---------- */
+
+.page {
+  [data-health='ok'],
+  [data-on='true'] {
+    --health: var(--viz-success);
+  }
+  [data-health='warn'] {
+    --health: var(--quota-medium-color);
+  }
+  [data-health='down'] {
+    --health: var(--viz-failure);
+  }
+  [data-health='off'],
+  [data-on='false'] {
+    --health: var(--text-quaternary);
+  }
+}
+
+.dot {
+  flex: 0 0 auto;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--health, var(--text-quaternary));
+}
+
+[data-health='ok'] > .dot {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--health) 18%, transparent);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 9px 2px 8px;
+  border-radius: $radius-full;
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: color-mix(in srgb, var(--health) 72%, var(--text-primary));
+  background: color-mix(in srgb, var(--health) 12%, transparent);
+}
+
+/* ---------- Version hero ---------- */
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+  gap: 20px 32px;
+  padding: 22px 24px;
+  border-radius: 14px;
+  border: 1px solid var(--border-color);
+  background: color-mix(in srgb, var(--bg-primary) 82%, transparent);
+
+  &[data-update='warn'] {
+    border-color: color-mix(in srgb, var(--quota-medium-color) 45%, var(--border-color));
+    background:
+      linear-gradient(120deg, transparent 40%, color-mix(in srgb, var(--quota-medium-color) 7%, transparent)),
+      color-mix(in srgb, var(--bg-primary) 82%, transparent);
+  }
+
+  @include mobile {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 18px;
+  }
+}
+
+.heroMain {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.heroEyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.heroVersion {
+  font-family: $font-mono;
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(34px, 5vw, 46px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  color: var(--text-primary);
+}
+
+.heroBuild {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+  font-family: $font-mono;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  overflow-wrap: anywhere;
+}
+
+.heroUpdate {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+  padding-left: 32px;
+  border-left: 1px solid var(--border-color);
+
+  @include mobile {
+    padding: 16px 0 0;
+    border-left: 0;
+    border-top: 1px solid var(--border-color);
+  }
+}
+
+.heroHeadline {
+  margin: 4px 0 0;
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.heroDetail {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.heroActions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  margin-top: 8px;
+
+  a {
+    text-decoration: none;
+  }
+}
+
+.heroChecked {
+  font-family: $font-mono;
+  font-size: 11.5px;
+  color: var(--text-quaternary);
+}
+
+/* ---------- Status board ---------- */
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: color-mix(in srgb, var(--bg-primary) 82%, transparent);
+  overflow: hidden;
+}
+
+.boardItem {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: 9px;
+  row-gap: 1px;
+  padding: 11px 14px;
+  border-right: 1px solid color-mix(in srgb, var(--border-color) 70%, transparent);
+  min-width: 0;
+
+  &:last-child {
+    border-right: 0;
+  }
+
+  .dot {
+    grid-row: span 2;
+  }
+}
+
+.boardName {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  @include text-ellipsis;
+}
+
+.boardLabel {
+  font-family: $font-mono;
+  font-size: 11.5px;
+  color: color-mix(in srgb, var(--health) 70%, var(--text-secondary));
+  @include text-ellipsis;
+}
+
+/* ---------- Cards ---------- */
+
+.grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  @media (max-width: 900px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 15px 16px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border-color);
+  background: color-mix(in srgb, var(--bg-primary) 82%, transparent);
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.cardIcon {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  background: color-mix(in srgb, var(--text-primary) 6%, transparent);
+}
+
+.cardTitle {
+  flex: 1 1 auto;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--text-primary);
+  @include text-ellipsis;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+.row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 6px 0;
+  border-bottom: 1px dashed color-mix(in srgb, var(--border-color) 75%, transparent);
+  min-width: 0;
+
+  &:last-of-type {
+    border-bottom: 0;
+  }
+
+  dt {
+    flex: 0 0 auto;
+    font-size: 12.5px;
+    color: var(--text-tertiary);
+  }
+
+  dd {
+    margin: 0;
+    min-width: 0;
+    font-size: 12.5px;
+    text-align: right;
+    color: var(--text-primary);
+    overflow-wrap: anywhere;
+  }
+
+  dd[data-tone='ok'] {
+    color: var(--viz-success);
+  }
+  dd[data-tone='warn'] {
+    color: var(--amber-text);
+  }
+  dd[data-tone='down'] {
+    color: var(--viz-failure);
+  }
+}
+
+.note {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  background: color-mix(in srgb, var(--text-primary) 5%, transparent);
+  overflow-wrap: anywhere;
+
+  &[data-tone='warn'] {
+    color: var(--amber-text);
+    background: var(--amber-10);
+  }
+
+  &[data-tone='down'] {
+    color: var(--danger-color);
+    background: var(--bg-error-light);
+  }
+}
+
+/* ---------- Credentials by provider ---------- */
+
+.providers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-top: 4px;
+}
+
+.provider {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px 3px 4px;
+  border-radius: $radius-full;
+  border: 1px solid var(--border-color);
+  font-size: 12px;
+  font-weight: 550;
+  color: var(--text-primary);
+
+  :global(.kit-mono) {
+    font-size: 11.5px;
+    color: var(--text-tertiary);
+  }
+}
+
+/* ---------- Settings flags ---------- */
+
+.flags {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr));
+  gap: 6px;
+  padding-top: 4px;
+}
+
+.flag {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 9px;
+  border-radius: 8px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: color-mix(in srgb, var(--text-primary) 4%, transparent);
+  min-width: 0;
+}
+
+.flagValue {
+  margin-left: auto;
+  font-family: $font-mono;
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+/* ---------- Links ---------- */
+
+.links {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 -8px;
+  padding: 7px 8px;
+  border-radius: 8px;
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: background-color var(--dur-hover) var(--ease-out-strong);
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: color-mix(in srgb, var(--bg-tertiary) 55%, transparent);
+    }
+    &:hover .linkArrow {
+      color: var(--text-secondary);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 1px;
+  }
+}
+
+.linkIcon {
+  display: inline-flex;
+  color: var(--text-tertiary);
+}
+
+.linkText {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.linkLabel {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.linkMeta {
+  font-size: 11.5px;
+  color: var(--text-tertiary);
+  @include text-ellipsis;
+}
+
+.linkArrow {
+  flex: 0 0 auto;
+  color: var(--text-quaternary);
+}

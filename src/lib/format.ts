@@ -108,3 +108,16 @@ export function formatRelative(input: Date | number | string | null | undefined,
 export function maskIdentifier(value: string): string {
   return value.replace(/([A-Za-z0-9._%+])[A-Za-z0-9._%+]*@([A-Za-z0-9])[A-Za-z0-9-]*/g, '$1•••@$2•••');
 }
+
+/** Bytes -> "812 B", "4.2 MB", "1.31 GB". */
+export function formatBytes(value: number | null | undefined): string {
+  if (!isFiniteNumber(value)) return '--';
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  let size = value;
+  let unit = 0;
+  while (size >= 1024 && unit < units.length - 1) {
+    size /= 1024;
+    unit++;
+  }
+  return unit === 0 ? `${Math.round(size)} B` : `${size.toFixed(size < 10 ? 2 : size < 100 ? 1 : 0)} ${units[unit]}`;
+}

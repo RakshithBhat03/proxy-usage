@@ -96,3 +96,14 @@ export function IconArrowUpRight({ size = 20, ...props }: IconProps) {
     </svg>
   );
 }
+
+export function IconServer({ size = 20, ...props }: IconProps) {
+  return (
+    <svg {...base} width={size} height={size} {...props}>
+      <rect width="20" height="8" x="2" y="2" rx="2" ry="2" />
+      <rect width="20" height="8" x="2" y="14" rx="2" ry="2" />
+      <path d="M6 6h.01" />
+      <path d="M6 18h.01" />
+    </svg>
+  );
+}

@@ -12,6 +12,7 @@ const UsagePage = lazy(() => import('@/features/usage/UsagePage'));
 const RequestsPage = lazy(() => import('@/features/requests/RequestsPage'));
 const QuotaPage = lazy(() => import('@/features/quota/QuotaPage'));
 const QuotaHistoryPage = lazy(() => import('@/features/quotaHistory/QuotaHistoryPage'));
+const StatusPage = lazy(() => import('@/features/status/StatusPage'));
 
 function PageFallback() {
   return (
@@ -29,6 +30,7 @@ const renderRoutes = (location: Location) => (
       <Route path="/requests" element={<RequestsPage />} />
       <Route path="/quota" element={<QuotaPage />} />
       <Route path="/quota-history" element={<QuotaHistoryPage />} />
+      <Route path="/status" element={<StatusPage />} />
       <Route path="*" element={<Navigate to="/usage" replace />} />
       </Routes>
     </Suspense>

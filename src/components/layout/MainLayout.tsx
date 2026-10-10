@@ -3,7 +3,7 @@ import { NavLink, type Location } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/Button';
 import { IconSidebarQuota } from '@/components/ui/icons';
-import { IconActivity, IconChartColumn, IconClock } from '@/components/ui/extraIcons';
+import { IconActivity, IconChartColumn, IconClock, IconServer } from '@/components/ui/extraIcons';
 import { PageTransition } from '@/components/common/PageTransition';
 import { SessionBanner } from '@/features/session/SessionBanner';
 import { triggerHeaderRefresh, hasHeaderRefreshHandler } from '@/hooks/useHeaderRefresh';
@@ -148,6 +148,11 @@ const NAV_GROUPS: Array<{ id: string; label: string; items: NavItem[] }> = [
       { path: '/quota', label: 'Quota', meta: 'Credential windows', icon: <IconSidebarQuota size={16} /> },
       { path: '/quota-history', label: 'Quota history', meta: 'Previous, current & forecast', icon: <IconClock size={16} /> },
     ],
+  },
+  {
+    id: 'system',
+    label: 'System',
+    items: [{ path: '/status', label: 'Status', meta: 'Versions, updates & health', icon: <IconServer size={16} /> }],
   },
 ];
 
