@@ -22,7 +22,7 @@ const PROBE_TIMEOUT_MS = 3000;
 /** api-call bodies can carry large JSON payloads. */
 export const API_CALL_BODY_LIMIT = 8 * 1024 * 1024;
 
-function readAppVersion(rootDir: string): string {
+export function readAppVersion(rootDir: string): string {
   try {
     const pkg = JSON.parse(readFileSync(path.join(rootDir, 'package.json'), 'utf8')) as { version?: unknown };
     return typeof pkg.version === 'string' ? pkg.version : '0.0.0';
@@ -31,7 +31,7 @@ function readAppVersion(rootDir: string): string {
   }
 }
 
-function fallbackCollectorStatus(ctx: AppContext): CollectorStatus {
+export function fallbackCollectorStatus(ctx: Pick<AppContext, 'config'>): CollectorStatus {
   return {
     mode: ctx.config.collectorMode,
     transport: 'none',

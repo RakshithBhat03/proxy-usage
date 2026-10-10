@@ -6,6 +6,7 @@ import { registerAuthRoutes } from './auth/routes.ts';
 import type { AppContext } from './context.ts';
 import { sendJson } from './http/respond.ts';
 import { registerPricingRoutes } from './pricing/routes.ts';
+import { registerSystemRoutes } from './system/routes.ts';
 
 export function registerRoutes(ctx: AppContext): void {
   // Liveness for Docker: no auth, no CPA round trip, no secrets.
@@ -13,4 +14,5 @@ export function registerRoutes(ctx: AppContext): void {
   registerAuthRoutes(ctx);
   registerPricingRoutes(ctx);
   registerAnalyticsRoutes(ctx);
+  registerSystemRoutes(ctx);
 }

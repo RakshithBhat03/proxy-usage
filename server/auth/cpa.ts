@@ -111,18 +111,38 @@ export function cpaErrorMessage(body: string): string {
   return message.length > 200 ? `${message.slice(0, 200)}…` : message;
 }
 
-// --- CPA version seen on responses (management responses carry X-CPA-VERSION) ---
+// --- CPA build seen on responses (management responses carry X-CPA-VERSION/-COMMIT/-BUILD-DATE) ---
 
-const versions = new Map<string, string>();
+export interface CpaBuild {
+  version: string;
+  commit: string | null;
+  buildDate: string | null;
+}
+
+const builds = new Map<string, CpaBuild>();
+
+function shortHeader(headers: IncomingHttpHeaders, name: string): string | null {
+  const raw = headers[name];
+  const value = (Array.isArray(raw) ? raw[0] : raw)?.trim();
+  return value && value.length <= 64 ? value : null;
+}
 
 export function noteCpaVersion(cpaUrl: string, headers: IncomingHttpHeaders): void {
-  const raw = headers['x-cpa-version'];
-  const value = (Array.isArray(raw) ? raw[0] : raw)?.trim();
-  if (value && value.length <= 64) versions.set(cpaUrl, value);
+  const version = shortHeader(headers, 'x-cpa-version');
+  if (!version) return;
+  builds.set(cpaUrl, {
+    version,
+    commit: shortHeader(headers, 'x-cpa-commit'),
+    buildDate: shortHeader(headers, 'x-cpa-build-date'),
+  });
 }
 
 export function knownCpaVersion(cpaUrl: string): string | null {
-  return versions.get(cpaUrl) ?? null;
+  return builds.get(cpaUrl)?.version ?? null;
+}
+
+export function knownCpaBuild(cpaUrl: string): CpaBuild | null {
+  return builds.get(cpaUrl) ?? null;
 }
 
 /** host[:port] of CPA_URL (no scheme, credentials or path). */
