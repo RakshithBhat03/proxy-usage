@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(docker compose up *)",
+      "Bash(docker compose restart *)",
+      "Bash(docker compose stop *)",
+      "Bash(docker compose down *)",
+      "Bash(docker compose build *)",
+      "Bash(docker compose kill *)",
+      "Bash(docker compose rm *)",
+      "Bash(docker compose create *)",
+      "Bash(docker compose start *)",
+      "Bash(docker compose pause *)",
+      "Bash(docker compose * up *)",
+      "Bash(docker compose * restart *)",
+      "Bash(docker compose * stop *)",
+      "Bash(docker compose * down *)",
+      "Bash(docker compose * build *)",
+      "Bash(docker compose * kill *)",
+      "Bash(docker compose * rm *)",
+      "Bash(docker-compose up *)",
+      "Bash(docker-compose restart *)",
+      "Bash(docker-compose stop *)",
+      "Bash(docker-compose down *)",
+      "Bash(docker-compose build *)",
+      "Bash(docker-compose kill *)",
+      "Bash(docker-compose rm *)",
+      "Bash(docker restart *)",
+      "Bash(docker stop *)",
+      "Bash(docker kill *)",
+      "Bash(docker rm *)",
+      "Bash(docker start *)",
+      "Bash(docker pause *)",
+      "Bash(docker container restart *)",
+      "Bash(docker container stop *)",
+      "Bash(docker container kill *)",
+      "Bash(docker container rm *)",
+      "Bash(docker container start *)"
+    ]
+  }
+}
