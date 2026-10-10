@@ -1,6 +1,9 @@
 /**
- * Production static file server for the built SPA in `dist/`.
- *  - Path traversal guard (resolved path must stay inside dist/), no dotfiles.
+ * Production static file server for the built SPA.
+ *  - Roots are tried in order: the first one holding an index.html serves the page, and a file is
+ *    served from the first root that has it. Nothing is cached, so a UI published into UI_DIR while
+ *    the server runs is picked up on the next request (the image's dist/ is the fallback).
+ *  - Path traversal guard (resolved path must stay inside its root), no dotfiles.
  *  - `/assets/*` (content-hashed by Vite) is cached immutably; index.html is `no-cache`.
  *  - GET/HEAD requests that accept HTML and match no file get index.html (client-side routing).
  *  - Text responses over 1 KB are gzipped on the fly when accepted.
@@ -35,7 +38,7 @@ const TYPES: Record<string, string> = {
 
 const COMPRESSIBLE = new Set(['.html', '.js', '.mjs', '.css', '.json', '.map', '.svg', '.txt', '.webmanifest']);
 
-/** Serves a request from dist/. Resolves `true` when it wrote a response. */
+/** Serves a request from the UI roots. Resolves `true` when it wrote a response. */
 export type StaticHandler = (req: IncomingMessage, res: ServerResponse, url: URL) => Promise<boolean>;
 
 function acceptsHtml(req: IncomingMessage): boolean {
@@ -66,9 +69,8 @@ export function resolveInside(root: string, pathname: string): string | null {
   return resolved;
 }
 
-export function createStaticHandler(distDir: string): StaticHandler {
-  const root = path.resolve(distDir);
-  const indexFile = path.join(root, 'index.html');
+export function createStaticHandler(dirs: readonly string[]): StaticHandler {
+  const roots = dirs.map((dir) => path.resolve(dir));
 
   const send = async (req: IncomingMessage, res: ServerResponse, file: string, info: Stats, cacheControl: string) => {
     const ext = path.extname(file).toLowerCase();
@@ -105,21 +107,31 @@ export function createStaticHandler(distDir: string): StaticHandler {
 
   return async (req, res, url) => {
     if (req.method !== 'GET' && req.method !== 'HEAD') return false;
-    const file = resolveInside(root, url.pathname);
-    if (file && file !== root) {
-      const info = await fileStat(file);
+    let index: { file: string; info: Stats } | null = null;
+    for (const root of roots) {
+      const indexFile = path.join(root, 'index.html');
+      const info = await fileStat(indexFile);
       if (info) {
-        const immutable = url.pathname.startsWith('/assets/');
-        const isIndex = file === indexFile;
-        await send(req, res, file, info, immutable ? 'public, max-age=31536000, immutable' : isIndex ? 'no-cache' : 'public, max-age=3600');
-        return true;
+        index = { file: indexFile, info };
+        break;
       }
+    }
+    for (const root of roots) {
+      const file = resolveInside(root, url.pathname);
+      if (!file || file === root) continue;
+      const info = await fileStat(file);
+      if (!info) continue;
+      const immutable = url.pathname.startsWith('/assets/');
+      // Only the active root's index.html is the page; another root's copy is stale.
+      if (path.basename(file) === 'index.html' && path.dirname(file) === root && file !== index?.file) continue;
+      const isIndex = file === index?.file;
+      await send(req, res, file, info, immutable ? 'public, max-age=31536000, immutable' : isIndex ? 'no-cache' : 'public, max-age=3600');
+      return true;
     }
     // Missing hashed assets must 404, never fall back to HTML (it would break with a MIME error).
     if (!acceptsHtml(req) || url.pathname.startsWith('/assets/')) return false;
-    const index = await fileStat(indexFile);
     if (!index) return false;
-    await send(req, res, indexFile, index, 'no-cache');
+    await send(req, res, index.file, index.info, 'no-cache');
     return true;
   };
 }

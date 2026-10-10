@@ -14,6 +14,11 @@ export interface Config {
   rootDir: string;
   /** Built SPA served in production. */
   distDir: string;
+  /**
+   * UI_DIR: a UI published at runtime (`npm run publish:ui`), served instead of `distDir` whenever it
+   * holds an index.html, so the UI can be updated without restarting the server.
+   */
+  uiDir: string | undefined;
   /** `--dev`: serve the UI through Vite middleware with HMR instead of `dist/`. */
   dev: boolean;
 
@@ -133,6 +138,7 @@ export function loadConfig(env: Env = process.env, argv: readonly string[] = pro
   return {
     rootDir: ROOT_DIR,
     distDir: path.join(ROOT_DIR, 'dist'),
+    uiDir: env.UI_DIR?.trim() ? path.resolve(ROOT_DIR, env.UI_DIR.trim()) : undefined,
     dev: argv.includes('--dev'),
 
     port: int(env, 'PORT', 18320, 1, 65535),
@@ -164,6 +170,7 @@ export function redactedConfig(config: Config): Record<string, unknown> {
   return {
     mode: config.dev ? 'dev' : 'production',
     listen: `${config.host}:${config.port}`,
+    uiDir: config.uiDir,
     cpaUrl: config.cpaUrl,
     cpaManagementKey: config.cpaManagementKey ? 'set' : 'unset',
     cpaTlsInsecure: config.cpaTlsInsecure,

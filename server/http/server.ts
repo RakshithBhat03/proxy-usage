@@ -29,7 +29,7 @@ export async function startHttp(ctx: AppContext): Promise<HttpHandle> {
   server.keepAliveTimeout = 65_000;
 
   let dev: DevMiddleware | null = null;
-  const serveStatic = config.dev ? null : createStaticHandler(config.distDir);
+  const serveStatic = config.dev ? null : createStaticHandler(config.uiDir ? [config.uiDir, config.distDir] : [config.distDir]);
   if (config.dev) dev = await createDevMiddleware(config, server);
 
   const handle = async (req: IncomingMessage, res: ServerResponse) => {
